@@ -15,7 +15,7 @@ const Footer = () => {
           {/* Logo & Description */}
           <div className="md:col-span-2">
             <a href="#" className="text-2xl font-bold tracking-tight">
-              DÉVELOPPEUR
+              TROIS DIMENSIONS
               <span className="text-forest">.</span>
             </a>
             <p className="mt-4 text-background/60 max-w-md leading-relaxed">
@@ -89,10 +89,10 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-background/40 text-sm">
-            © {currentYear} Développeur SA. Tous droits réservés.
+            © {currentYear} Trois Dimensions SA. Tous droits réservés.
           </p>
           <p className="text-background/40 text-sm">
-            Lausanne, Suisse
+            Bulle, Suisse
           </p>
         </div>
       </div>
