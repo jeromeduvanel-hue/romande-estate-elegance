@@ -30,9 +30,9 @@ const HeroSection = () => {
           </p>
           
           <h1 className="text-display text-background mb-8 animate-fade-up opacity-0" style={{ animationDelay: "0.4s" }}>
-            Bâtir l'excellence
+            Bâtir et innover
             <br />
-            en Suisse Romande
+            l'immobilier
           </h1>
           
           <p className="text-subheadline text-background/80 max-w-2xl mx-auto mb-12 animate-fade-up opacity-0" style={{ animationDelay: "0.6s" }}>
