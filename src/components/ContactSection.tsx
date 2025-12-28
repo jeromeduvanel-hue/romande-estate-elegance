@@ -17,7 +17,7 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Adresse",
-    content: "Rue du Grand-Pont 12\n1003 Lausanne, Suisse",
+    content: "Rue de l'Etang 25\n1630 Bulle, Suisse",
   },
   {
     icon: Phone,
