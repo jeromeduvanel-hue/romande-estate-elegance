@@ -1,24 +1,12 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-
-const benefits = [
-  "Estimation gratuite de votre bien",
-  "Étude de faisabilité complète",
-  "Accompagnement juridique et fiscal",
-  "Solutions de financement sur mesure",
-];
-
+const benefits = ["Estimation gratuite de votre bien", "Étude de faisabilité complète", "Accompagnement juridique et fiscal", "Solutions de financement sur mesure"];
 const ValorisationSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -26,22 +14,27 @@ const ValorisationSection = () => {
     email: "",
     phone: "",
     address: "",
-    message: "",
+    message: ""
   });
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
       title: "Demande envoyée",
-      description: "Un expert vous contactera dans les 48h pour planifier une analyse.",
+      description: "Un expert vous contactera dans les 48h pour planifier une analyse."
     });
     setShowForm(false);
-    setFormData({ name: "", email: "", phone: "", address: "", message: "" });
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+      message: ""
+    });
   };
-
-  return (
-    <section id="valorisation" className="py-24 md:py-32 bg-foreground text-background">
+  return <section id="valorisation" className="py-24 md:py-32 bg-foreground text-background">
       <div className="container-swiss">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Content */}
@@ -62,20 +55,13 @@ const ValorisationSection = () => {
 
             {/* Benefits */}
             <ul className="space-y-4 mb-10">
-              {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-center gap-3">
+              {benefits.map((benefit, index) => <li key={index} className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-forest flex-shrink-0" />
                   <span className="text-background/80">{benefit}</span>
-                </li>
-              ))}
+                </li>)}
             </ul>
 
-            <Button
-              variant="hero"
-              size="lg"
-              onClick={() => setShowForm(true)}
-              className="group"
-            >
+            <Button variant="hero" size="lg" onClick={() => setShowForm(true)} className="group">
               Demander une analyse foncière
               <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Button>
@@ -89,7 +75,7 @@ const ValorisationSection = () => {
                 <p className="text-background/60 text-sm">Années d'expertise</p>
               </div>
               <div>
-                <p className="text-5xl md:text-6xl font-bold text-background mb-2">50+</p>
+                <p className="text-5xl md:text-6xl font-bold text-background mb-2">12+</p>
                 <p className="text-background/60 text-sm">Projets réalisés</p>
               </div>
               <div>
@@ -98,7 +84,7 @@ const ValorisationSection = () => {
               </div>
               <div>
                 <p className="text-5xl md:text-6xl font-bold text-forest mb-2">CHF</p>
-                <p className="text-background/60 text-sm">200M+ développés</p>
+                <p className="text-background/60 text-sm">54M+ développés</p>
               </div>
             </div>
           </div>
@@ -120,57 +106,39 @@ const ValorisationSection = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="analysis-name">Nom complet</Label>
-                <Input
-                  id="analysis-name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  className="mt-1.5"
-                />
+                <Input id="analysis-name" value={formData.name} onChange={e => setFormData({
+                ...formData,
+                name: e.target.value
+              })} required className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="analysis-phone">Téléphone</Label>
-                <Input
-                  id="analysis-phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                  className="mt-1.5"
-                />
+                <Input id="analysis-phone" type="tel" value={formData.phone} onChange={e => setFormData({
+                ...formData,
+                phone: e.target.value
+              })} required className="mt-1.5" />
               </div>
             </div>
             <div>
               <Label htmlFor="analysis-email">Email</Label>
-              <Input
-                id="analysis-email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-                className="mt-1.5"
-              />
+              <Input id="analysis-email" type="email" value={formData.email} onChange={e => setFormData({
+              ...formData,
+              email: e.target.value
+            })} required className="mt-1.5" />
             </div>
             <div>
               <Label htmlFor="analysis-address">Adresse du bien</Label>
-              <Input
-                id="analysis-address"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Rue, NPA, Ville"
-                required
-                className="mt-1.5"
-              />
+              <Input id="analysis-address" value={formData.address} onChange={e => setFormData({
+              ...formData,
+              address: e.target.value
+            })} placeholder="Rue, NPA, Ville" required className="mt-1.5" />
             </div>
             <div>
               <Label htmlFor="analysis-message">Description (optionnel)</Label>
-              <Textarea
-                id="analysis-message"
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                placeholder="Type de bien, surface, zone, etc."
-                className="mt-1.5 min-h-[100px]"
-              />
+              <Textarea id="analysis-message" value={formData.message} onChange={e => setFormData({
+              ...formData,
+              message: e.target.value
+            })} placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" />
             </div>
             <Button type="submit" variant="forest" size="lg" className="w-full mt-6">
               Envoyer la demande
@@ -178,8 +146,6 @@ const ValorisationSection = () => {
           </form>
         </DialogContent>
       </Dialog>
-    </section>
-  );
+    </section>;
 };
-
 export default ValorisationSection;
