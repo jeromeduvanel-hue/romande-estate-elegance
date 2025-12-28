@@ -33,14 +33,6 @@ const expertise = [
   },
 ];
 
-const partners = [
-  "Banque Cantonale Vaudoise",
-  "Credit Suisse",
-  "UBS",
-  "Raiffeisen",
-  "Swiss Life",
-  "Mobilière",
-];
 
 const ExpertiseSection = () => {
   return (
@@ -76,23 +68,6 @@ const ExpertiseSection = () => {
               </p>
             </div>
           ))}
-        </div>
-
-        {/* Partners */}
-        <div className="border-t border-border pt-16">
-          <p className="text-center text-sm uppercase tracking-[0.2em] text-muted-foreground mb-10">
-            Nos partenaires de confiance
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {partners.map((partner, index) => (
-              <div
-                key={index}
-                className="text-lg md:text-xl font-medium text-muted-foreground/60 hover:text-foreground transition-colors duration-300"
-              >
-                {partner}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>
