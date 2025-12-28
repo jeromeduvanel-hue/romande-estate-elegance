@@ -11,10 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
-import project1 from "@/assets/project-1.jpg";
+import residencePommiers from "@/assets/residence-pommiers.jpg";
 import project2 from "@/assets/project-2.jpg";
-import project3 from "@/assets/project-3.jpg";
-import project4 from "@/assets/project-4.jpg";
 
 interface Project {
   id: number;
@@ -35,7 +33,7 @@ const projects: Project[] = [
     type: "Résidentiel",
     units: "Résidence",
     status: "Réalisé",
-    image: project1,
+    image: residencePommiers,
     description: "Un projet résidentiel de qualité à Remaufens, alliant confort moderne et intégration harmonieuse dans le paysage fribourgeois.",
   },
   {
