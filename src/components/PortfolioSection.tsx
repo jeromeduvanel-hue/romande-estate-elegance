@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 import residencePommiers from "@/assets/residence-pommiers.jpg";
-import project2 from "@/assets/project-2.jpg";
+import villasCorcelles from "@/assets/villas-corcelles.png";
 
 interface Project {
   id: number;
@@ -32,7 +32,7 @@ const projects: Project[] = [
     location: "Remaufens, FR",
     type: "Résidentiel",
     units: "Résidence",
-    status: "Réalisé",
+    status: "En cours de réalisation",
     image: residencePommiers,
     description: "Un projet résidentiel de qualité à Remaufens, alliant confort moderne et intégration harmonieuse dans le paysage fribourgeois.",
   },
@@ -41,9 +41,9 @@ const projects: Project[] = [
     title: "Projet 6 Villas Mitoyennes",
     location: "Corcelles-près-Payerne, VD",
     type: "Villas mitoyennes",
-    units: "6 villas",
-    status: "En développement",
-    image: project2,
+    units: "6 villas - Vendu",
+    status: "Réalisé",
+    image: villasCorcelles,
     description: "Développement d'un projet de 6 villas mitoyennes à Corcelles-près-Payerne, offrant un cadre de vie idéal pour les familles.",
   },
 ];
