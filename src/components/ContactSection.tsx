@@ -27,7 +27,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email",
-    content: "contact@developpeur.ch",
+    content: "contact@trois-dimensions.ch",
   },
   {
     icon: Clock,
