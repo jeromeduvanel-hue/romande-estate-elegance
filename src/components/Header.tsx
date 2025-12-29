@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/logo-trois-dimensions.png";
+import logoLight from "@/assets/logo-trois-dimensions.png";
+import logoDark from "@/assets/logo-trois-dimensions-dark.jpg";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -43,7 +44,7 @@ const Header = () => {
           top: 0,
           behavior: "smooth"
         })}>
-            <img src={logo} alt="Trois Dimensions SA" className="h-12 md:h-14 w-auto" />
+            <img src={isScrolled ? logoDark : logoLight} alt="Trois Dimensions SA" className="h-12 md:h-14 w-auto transition-opacity duration-300" />
           </a>
 
           {/* Desktop Navigation */}
