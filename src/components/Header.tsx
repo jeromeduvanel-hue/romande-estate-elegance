@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo-trois-dimensions.png";
+
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -37,10 +39,11 @@ const Header = () => {
       <div className="container-swiss">
         <nav className="flex items-center justify-between h-20 md:h-24">
           {/* Logo */}
-          <a href="#" className="text-xl md:text-2xl font-bold tracking-tight text-foreground" onClick={() => window.scrollTo({
+          <a href="#" className="flex items-center" onClick={() => window.scrollTo({
           top: 0,
           behavior: "smooth"
-        })}>Trois Dimensions SA<span className="text-forest">.</span>
+        })}>
+            <img src={logo} alt="Trois Dimensions SA" className="h-12 md:h-14 w-auto" />
           </a>
 
           {/* Desktop Navigation */}
