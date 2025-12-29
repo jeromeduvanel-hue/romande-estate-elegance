@@ -22,7 +22,7 @@ const contactInfo = [
   {
     icon: Phone,
     title: "Téléphone",
-    content: "+41 21 123 45 67",
+    content: "026 913 93 91",
   },
   {
     icon: Mail,
