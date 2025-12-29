@@ -1,3 +1,5 @@
+import logo from "@/assets/logo-trois-dimensions.png";
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
@@ -14,9 +16,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 mb-12">
           {/* Logo & Description */}
           <div className="md:col-span-2">
-            <a href="#" className="text-2xl font-bold tracking-tight">
-              TROIS DIMENSIONS
-              <span className="text-forest">.</span>
+            <a href="#" className="inline-block">
+              <img src={logo} alt="Trois Dimensions SA" className="h-12 w-auto" />
             </a>
             <p className="mt-4 text-background/60 max-w-md leading-relaxed">
               Promoteur immobilier d'excellence en Suisse Romande. 
