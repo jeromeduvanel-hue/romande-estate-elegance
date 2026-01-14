@@ -32,7 +32,7 @@ const contactInfo = [
   {
     icon: Clock,
     title: "Horaires",
-    content: "Lun - Ven: 9h - 18h",
+    content: "Lun - Ven: 9h00 - 17h00",
   },
 ];
 
