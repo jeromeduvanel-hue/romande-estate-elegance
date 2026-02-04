@@ -6,9 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
 const benefits = ["Estimation gratuite de votre bien", "Étude de faisabilité complète", "Accompagnement juridique et fiscal", "Solutions de financement sur mesure"];
+
 const ValorisationSection = () => {
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,23 +20,48 @@ const ValorisationSection = () => {
     address: "",
     message: ""
   });
-  const {
-    toast
-  } = useToast();
-  const handleSubmit = (e: React.FormEvent) => {
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Demande envoyée",
-      description: "Un expert vous contactera dans les 48h pour planifier une analyse."
-    });
-    setShowForm(false);
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      message: ""
-    });
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("send-contact-email", {
+        body: {
+          type: "valorisation",
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          message: formData.message,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Demande envoyée",
+        description: "Un expert vous contactera dans les 48h pour planifier une analyse."
+      });
+      setShowForm(false);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+        message: ""
+      });
+    } catch (error) {
+      console.error("Error sending request:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return <section id="valorisation" className="py-24 md:py-32 bg-foreground text-background">
       <div className="container-swiss">
@@ -140,8 +169,8 @@ const ValorisationSection = () => {
               message: e.target.value
             })} placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" />
             </div>
-            <Button type="submit" variant="forest" size="lg" className="w-full mt-6">
-              Envoyer la demande
+            <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={isSubmitting}>
+              {isSubmitting ? "Envoi en cours..." : "Envoyer la demande"}
             </Button>
           </form>
         </DialogContent>

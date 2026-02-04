@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 import residencePommiers from "@/assets/residence-pommiers.jpg";
 import villasCorcelles from "@/assets/villas-corcelles.png";
@@ -51,18 +52,44 @@ const projects: Project[] = [
 const PortfolioSection = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showBrochureForm, setShowBrochureForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   const { toast } = useToast();
 
-  const handleBrochureSubmit = (e: React.FormEvent) => {
+  const handleBrochureSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Demande envoyée",
-      description: "Vous recevrez la brochure par email dans les plus brefs délais.",
-    });
-    setShowBrochureForm(false);
-    setSelectedProject(null);
-    setFormData({ name: "", email: "", phone: "" });
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("send-contact-email", {
+        body: {
+          type: "brochure",
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          projectTitle: selectedProject?.title,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Demande envoyée",
+        description: "Vous recevrez la brochure par email dans les plus brefs délais.",
+      });
+      setShowBrochureForm(false);
+      setSelectedProject(null);
+      setFormData({ name: "", email: "", phone: "" });
+    } catch (error) {
+      console.error("Error sending request:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -222,8 +249,8 @@ const PortfolioSection = () => {
                 className="mt-1.5"
               />
             </div>
-            <Button type="submit" variant="forest" size="lg" className="w-full mt-6">
-              Recevoir la brochure
+            <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={isSubmitting}>
+              {isSubmitting ? "Envoi en cours..." : "Recevoir la brochure"}
             </Button>
           </form>
         </DialogContent>
