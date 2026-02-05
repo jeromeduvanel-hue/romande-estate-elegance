@@ -12,6 +12,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -89,6 +90,34 @@ const AdminLogin = () => {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/admin/login`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email envoyé",
+        description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
+      });
+      setIsResetPassword(false);
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur s'est produite.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-secondary flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -98,16 +127,21 @@ const AdminLogin = () => {
           </div>
           
           <h1 className="text-2xl font-bold text-center mb-2">
-            {isSignUp ? "Créer un compte" : "Espace Administrateur"}
+            {isResetPassword 
+              ? "Mot de passe oublié" 
+              : isSignUp 
+                ? "Créer un compte" 
+                : "Espace Administrateur"}
           </h1>
           <p className="text-muted-foreground text-center text-sm mb-8">
-            {isSignUp 
+            {isResetPassword
+              ? "Entrez votre email pour recevoir un lien de réinitialisation"
+              : isSignUp 
               ? "Inscrivez-vous pour demander l'accès administrateur"
-              : "Connectez-vous pour accéder aux demandes"
-            }
+              : "Connectez-vous pour accéder aux demandes"}
           </p>
 
-          <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-4">
+          <form onSubmit={isResetPassword ? handleResetPassword : isSignUp ? handleSignUp : handleLogin} className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
               <Input
@@ -120,19 +154,21 @@ const AdminLogin = () => {
                 placeholder="admin@trois-dimensions.ch"
               />
             </div>
-            <div>
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="mt-1.5"
-                placeholder="••••••••"
-                minLength={6}
-              />
-            </div>
+            {!isResetPassword && (
+              <div>
+                <Label htmlFor="password">Mot de passe</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="mt-1.5"
+                  placeholder="••••••••"
+                  minLength={6}
+                />
+              </div>
+            )}
             <Button
               type="submit"
               variant="forest"
@@ -140,23 +176,40 @@ const AdminLogin = () => {
               className="w-full mt-6"
               disabled={isLoading}
             >
-              {isLoading 
-                ? (isSignUp ? "Inscription..." : "Connexion...") 
-                : (isSignUp ? "S'inscrire" : "Se connecter")
-              }
+              {isLoading
+                ? "Chargement..."
+                : isResetPassword
+                ? "Envoyer le lien"
+                : isSignUp
+                ? "S'inscrire"
+                : "Se connecter"}
             </Button>
           </form>
 
-          <div className="mt-4 text-center">
+          {!isResetPassword && !isSignUp && (
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => setIsResetPassword(true)}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+          )}
+
+          <div className="mt-3 text-center">
             <button
               type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() => {
+                setIsSignUp(!isSignUp && !isResetPassword);
+                setIsResetPassword(false);
+              }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              {isSignUp 
+              {isResetPassword || isSignUp
                 ? "Déjà un compte ? Se connecter"
-                : "Pas encore de compte ? S'inscrire"
-              }
+                : "Pas encore de compte ? S'inscrire"}
             </button>
           </div>
 
