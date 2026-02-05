@@ -11,6 +11,7 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -56,6 +57,38 @@ const AdminLogin = () => {
     }
   };
 
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/admin/login`,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Inscription réussie",
+        description: "Vérifiez votre email pour confirmer votre compte, puis contactez l'administrateur pour activer votre accès.",
+      });
+      setIsSignUp(false);
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      toast({
+        title: "Erreur d'inscription",
+        description: error.message || "Une erreur s'est produite lors de l'inscription.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-secondary flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -64,12 +97,17 @@ const AdminLogin = () => {
             <img src={logoLight} alt="Trois Dimensions" className="h-12" />
           </div>
           
-          <h1 className="text-2xl font-bold text-center mb-2">Espace Administrateur</h1>
+          <h1 className="text-2xl font-bold text-center mb-2">
+            {isSignUp ? "Créer un compte" : "Espace Administrateur"}
+          </h1>
           <p className="text-muted-foreground text-center text-sm mb-8">
-            Connectez-vous pour accéder aux demandes
+            {isSignUp 
+              ? "Inscrivez-vous pour demander l'accès administrateur"
+              : "Connectez-vous pour accéder aux demandes"
+            }
           </p>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
               <Input
@@ -92,6 +130,7 @@ const AdminLogin = () => {
                 required
                 className="mt-1.5"
                 placeholder="••••••••"
+                minLength={6}
               />
             </div>
             <Button
@@ -101,9 +140,25 @@ const AdminLogin = () => {
               className="w-full mt-6"
               disabled={isLoading}
             >
-              {isLoading ? "Connexion..." : "Se connecter"}
+              {isLoading 
+                ? (isSignUp ? "Inscription..." : "Connexion...") 
+                : (isSignUp ? "S'inscrire" : "Se connecter")
+              }
             </Button>
           </form>
+
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {isSignUp 
+                ? "Déjà un compte ? Se connecter"
+                : "Pas encore de compte ? S'inscrire"
+              }
+            </button>
+          </div>
 
           <div className="mt-6 text-center">
             <a href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
