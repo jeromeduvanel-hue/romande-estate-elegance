@@ -185,8 +185,10 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Lead saved to database:", lead.id);
 
     // Send email via Resend
+    // IMPORTANT: You must verify trois-dimensions.ch domain at resend.com/domains
+    // then update the 'from' address to use your verified domain
     const emailResponse = await resend.emails.send({
-      from: "Trois Dimensions <onboarding@resend.dev>",
+      from: "Trois Dimensions <noreply@trois-dimensions.ch>",
       to: ["contact@trois-dimensions.ch"],
       subject: getEmailSubject(data.type, data.name),
       html: getEmailHtml(data),
