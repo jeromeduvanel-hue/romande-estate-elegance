@@ -19,9 +19,9 @@ const Footer = () => {
             <a href="#" className="inline-block">
               <img src={logo} alt="Trois Dimensions SA" className="h-12 w-auto" />
             </a>
-            <p className="mt-4 text-background/60 max-w-md leading-relaxed">
-              Promoteur immobilier d'excellence en Suisse Romande. 
-              Développement, construction et valorisation de projets résidentiels haut de gamme.
+            <p className="mt-4 text-background/60 max-w-md leading-relaxed">Promoteur immobilier en Suisse Romande. Développement, construction et valorisation de projets résidentiels haut de gamme.
+
+
             </p>
           </div>
 
@@ -32,32 +32,32 @@ const Footer = () => {
               <li>
                 <button
                   onClick={() => scrollToSection("#projets")}
-                  className="text-background/60 hover:text-background transition-colors text-sm"
-                >
+                  className="text-background/60 hover:text-background transition-colors text-sm">
+
                   Nos projets
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => scrollToSection("#valorisation")}
-                  className="text-background/60 hover:text-background transition-colors text-sm"
-                >
+                  className="text-background/60 hover:text-background transition-colors text-sm">
+
                   Valorisation foncière
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => scrollToSection("#expertise")}
-                  className="text-background/60 hover:text-background transition-colors text-sm"
-                >
+                  className="text-background/60 hover:text-background transition-colors text-sm">
+
                   Notre expertise
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => scrollToSection("#contact")}
-                  className="text-background/60 hover:text-background transition-colors text-sm"
-                >
+                  className="text-background/60 hover:text-background transition-colors text-sm">
+
                   Contact
                 </button>
               </li>
@@ -97,8 +97,8 @@ const Footer = () => {
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>);
+
 };
 
 export default Footer;

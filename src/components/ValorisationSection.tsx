@@ -34,8 +34,8 @@ const ValorisationSection = () => {
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
-          message: formData.message,
-        },
+          message: formData.message
+        }
       });
 
       if (error) throw error;
@@ -57,7 +57,7 @@ const ValorisationSection = () => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue. Veuillez réessayer.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
@@ -135,14 +135,14 @@ const ValorisationSection = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="analysis-name">Nom complet</Label>
-                <Input id="analysis-name" value={formData.name} onChange={e => setFormData({
+                <Input id="analysis-name" value={formData.name} onChange={(e) => setFormData({
                 ...formData,
                 name: e.target.value
               })} required className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="analysis-phone">Téléphone</Label>
-                <Input id="analysis-phone" type="tel" value={formData.phone} onChange={e => setFormData({
+                <Input id="analysis-phone" type="tel" value={formData.phone} onChange={(e) => setFormData({
                 ...formData,
                 phone: e.target.value
               })} required className="mt-1.5" />
@@ -150,21 +150,21 @@ const ValorisationSection = () => {
             </div>
             <div>
               <Label htmlFor="analysis-email">Email</Label>
-              <Input id="analysis-email" type="email" value={formData.email} onChange={e => setFormData({
+              <Input id="analysis-email" type="email" value={formData.email} onChange={(e) => setFormData({
               ...formData,
               email: e.target.value
             })} required className="mt-1.5" />
             </div>
             <div>
               <Label htmlFor="analysis-address">Adresse du bien</Label>
-              <Input id="analysis-address" value={formData.address} onChange={e => setFormData({
+              <Input id="analysis-address" value={formData.address} onChange={(e) => setFormData({
               ...formData,
               address: e.target.value
             })} placeholder="Rue, NPA, Ville" required className="mt-1.5" />
             </div>
             <div>
               <Label htmlFor="analysis-message">Description (optionnel)</Label>
-              <Textarea id="analysis-message" value={formData.message} onChange={e => setFormData({
+              <Textarea id="analysis-message" value={formData.message} onChange={(e) => setFormData({
               ...formData,
               message: e.target.value
             })} placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" />

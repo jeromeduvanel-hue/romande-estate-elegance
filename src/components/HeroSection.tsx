@@ -17,8 +17,8 @@ const HeroSection = () => {
         <img
           src={heroImage}
           alt="Architecture moderne suisse"
-          className="w-full h-full object-cover"
-        />
+          className="w-full h-full object-cover" />
+
         <div className="absolute inset-0 bg-foreground/60" />
       </div>
 
@@ -35,24 +35,24 @@ const HeroSection = () => {
             l'immobilier
           </h1>
           
-          <p className="text-subheadline text-background/80 max-w-2xl mx-auto mb-12 animate-fade-up opacity-0" style={{ animationDelay: "0.6s" }}>
-            Développement immobilier et construction de projets résidentiels d'exception. 
-            De l'étude de faisabilité à la livraison clé en main.
+          <p className="text-subheadline text-background/80 max-w-2xl mx-auto mb-12 animate-fade-up opacity-0" style={{ animationDelay: "0.6s" }}>Développement immobilier et construction de projets résidentiels. De l'étude de faisabilité à la livraison clé en main.
+
+
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up opacity-0" style={{ animationDelay: "0.8s" }}>
             <Button
               variant="hero"
               size="lg"
-              onClick={scrollToProjects}
-            >
+              onClick={scrollToProjects}>
+
               Découvrir nos projets
             </Button>
             <Button
               variant="heroOutline"
               size="lg"
-              onClick={() => document.querySelector("#valorisation")?.scrollIntoView({ behavior: "smooth" })}
-            >
+              onClick={() => document.querySelector("#valorisation")?.scrollIntoView({ behavior: "smooth" })}>
+
               Valoriser mon terrain
             </Button>
           </div>
@@ -63,12 +63,12 @@ const HeroSection = () => {
       <button
         onClick={scrollToProjects}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 text-background/60 hover:text-background transition-colors duration-300 animate-bounce"
-        aria-label="Scroll to projects"
-      >
+        aria-label="Scroll to projects">
+
         <ArrowDown className="h-8 w-8" />
       </button>
-    </section>
-  );
+    </section>);
+
 };
 
 export default HeroSection;

@@ -5,8 +5,8 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  DialogTitle } from
+"@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -27,27 +27,27 @@ interface Project {
 }
 
 const projects: Project[] = [
-  {
-    id: 1,
-    title: "Résidence Les Pommiers",
-    location: "Remaufens, FR",
-    type: "Résidentiel",
-    units: "Résidence",
-    status: "En cours de réalisation",
-    image: residencePommiers,
-    description: "Un projet résidentiel de qualité à Remaufens, alliant confort moderne et intégration harmonieuse dans le paysage fribourgeois.",
-  },
-  {
-    id: 2,
-    title: "Projet 6 Villas Mitoyennes",
-    location: "Corcelles-près-Payerne, VD",
-    type: "Villas mitoyennes",
-    units: "6 villas - Vendu",
-    status: "Réalisé",
-    image: villasCorcelles,
-    description: "Développement d'un projet de 6 villas mitoyennes à Corcelles-près-Payerne, offrant un cadre de vie idéal pour les familles.",
-  },
-];
+{
+  id: 1,
+  title: "Résidence Les Pommiers",
+  location: "Remaufens, FR",
+  type: "Résidentiel",
+  units: "Résidence",
+  status: "En cours de réalisation",
+  image: residencePommiers,
+  description: "Un projet résidentiel de qualité à Remaufens, alliant confort moderne et intégration harmonieuse dans le paysage fribourgeois."
+},
+{
+  id: 2,
+  title: "Projet 6 Villas Mitoyennes",
+  location: "Corcelles-près-Payerne, VD",
+  type: "Villas mitoyennes",
+  units: "6 villas - Vendu",
+  status: "Réalisé",
+  image: villasCorcelles,
+  description: "Développement d'un projet de 6 villas mitoyennes à Corcelles-près-Payerne, offrant un cadre de vie idéal pour les familles."
+}];
+
 
 const PortfolioSection = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -67,15 +67,15 @@ const PortfolioSection = () => {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          projectTitle: selectedProject?.title,
-        },
+          projectTitle: selectedProject?.title
+        }
       });
 
       if (error) throw error;
 
       toast({
         title: "Demande envoyée",
-        description: "Vous recevrez la brochure par email dans les plus brefs délais.",
+        description: "Vous recevrez la brochure par email dans les plus brefs délais."
       });
       setShowBrochureForm(false);
       setSelectedProject(null);
@@ -85,7 +85,7 @@ const PortfolioSection = () => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue. Veuillez réessayer.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
@@ -103,26 +103,26 @@ const PortfolioSection = () => {
           <h2 className="text-headline mb-6 animate-fade-up opacity-0" style={{ animationDelay: "0.2s" }}>
             Nos réalisations
           </h2>
-          <p className="text-lg text-muted-foreground animate-fade-up opacity-0" style={{ animationDelay: "0.3s" }}>
-            Chaque projet reflète notre engagement pour l'excellence architecturale 
-            et notre expertise du marché immobilier romand.
+          <p className="text-lg text-muted-foreground animate-fade-up opacity-0" style={{ animationDelay: "0.3s" }}>Chaque projet reflète notre engagement pour l'architecture et notre expertise du marché immobilier romand.
+
+
           </p>
         </div>
 
         {/* Project Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {projects.map((project, index) => (
-            <button
-              key={project.id}
-              onClick={() => setSelectedProject(project)}
-              className="group relative overflow-hidden bg-secondary aspect-[4/3] text-left animate-fade-up opacity-0"
-              style={{ animationDelay: `${0.2 + index * 0.1}s` }}
-            >
+          {projects.map((project, index) =>
+          <button
+            key={project.id}
+            onClick={() => setSelectedProject(project)}
+            className="group relative overflow-hidden bg-secondary aspect-[4/3] text-left animate-fade-up opacity-0"
+            style={{ animationDelay: `${0.2 + index * 0.1}s` }}>
+
               <img
-                src={project.image}
-                alt={project.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              src={project.image}
+              alt={project.title}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
               
               {/* Content */}
@@ -143,25 +143,25 @@ const PortfolioSection = () => {
                 <ArrowRight className="h-6 w-6 text-background" />
               </div>
             </button>
-          ))}
+          )}
         </div>
       </div>
 
       {/* Project Detail Dialog */}
       <Dialog open={!!selectedProject && !showBrochureForm} onOpenChange={() => setSelectedProject(null)}>
         <DialogContent className="max-w-3xl p-0 overflow-hidden">
-          {selectedProject && (
-            <>
+          {selectedProject &&
+          <>
               <div className="relative h-64 md:h-80">
                 <img
-                  src={selectedProject.image}
-                  alt={selectedProject.title}
-                  className="w-full h-full object-cover"
-                />
+                src={selectedProject.image}
+                alt={selectedProject.title}
+                className="w-full h-full object-cover" />
+
                 <button
-                  onClick={() => setSelectedProject(null)}
-                  className="absolute top-4 right-4 p-2 bg-background/20 backdrop-blur-sm rounded-full hover:bg-background/40 transition-colors"
-                >
+                onClick={() => setSelectedProject(null)}
+                className="absolute top-4 right-4 p-2 bg-background/20 backdrop-blur-sm rounded-full hover:bg-background/40 transition-colors">
+
                   <X className="h-5 w-5 text-background" />
                 </button>
               </div>
@@ -185,23 +185,23 @@ const PortfolioSection = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button
-                    variant="forest"
-                    size="lg"
-                    onClick={() => setShowBrochureForm(true)}
-                  >
+                  variant="forest"
+                  size="lg"
+                  onClick={() => setShowBrochureForm(true)}>
+
                     Télécharger la brochure
                   </Button>
                   <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}
-                  >
+                  variant="outline"
+                  size="lg"
+                  onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}>
+
                     Nous contacter
                   </Button>
                 </div>
               </div>
             </>
-          )}
+          }
         </DialogContent>
       </Dialog>
 
@@ -225,8 +225,8 @@ const PortfolioSection = () => {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
-                className="mt-1.5"
-              />
+                className="mt-1.5" />
+
             </div>
             <div>
               <Label htmlFor="brochure-email">Email</Label>
@@ -236,8 +236,8 @@ const PortfolioSection = () => {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
-                className="mt-1.5"
-              />
+                className="mt-1.5" />
+
             </div>
             <div>
               <Label htmlFor="brochure-phone">Téléphone</Label>
@@ -246,8 +246,8 @@ const PortfolioSection = () => {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="mt-1.5"
-              />
+                className="mt-1.5" />
+
             </div>
             <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={isSubmitting}>
               {isSubmitting ? "Envoi en cours..." : "Recevoir la brochure"}
@@ -255,8 +255,8 @@ const PortfolioSection = () => {
           </form>
         </DialogContent>
       </Dialog>
-    </section>
-  );
+    </section>);
+
 };
 
 export default PortfolioSection;
