@@ -49,7 +49,7 @@ const ContactSection = () => {
     formData.set("type_projet", projectType);
 
     try {
-      const res = await fetch("https://formspree.io/f/mgolkryb", {
+      const res = await fetch("https://formspree.io/f/meelgwod", {
         method: "POST",
         body: formData,
         headers: { Accept: "application/json" },
