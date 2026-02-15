@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const contactInfo = [
   {
@@ -38,46 +36,31 @@ const contactInfo = [
 ];
 
 const ContactSection = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    projectType: "",
-    message: "",
-  });
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const [projectType, setProjectType] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    formData.set("type_projet", projectType);
+
     try {
-      const { data, error } = await supabase.functions.invoke("send-contact-email", {
-        body: {
-          type: "contact",
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          projectType: formData.projectType,
-          message: formData.message,
-        },
+      const res = await fetch("https://formspree.io/f/mgolkryb", {
+        method: "POST",
+        body: formData,
+        headers: { Accept: "application/json" },
       });
-
-      if (error) throw error;
-
-      toast({
-        title: "Message envoyé",
-        description: "Nous vous répondrons dans les plus brefs délais.",
-      });
-      setFormData({ name: "", email: "", phone: "", projectType: "", message: "" });
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue. Veuillez réessayer.",
-        variant: "destructive",
-      });
+      if (res.ok) {
+        setIsSubmitted(true);
+        form.reset();
+        setProjectType("");
+      }
+    } catch {
+      // silent fail
     } finally {
       setIsSubmitting(false);
     }
@@ -120,74 +103,80 @@ const ContactSection = () => {
           {/* Contact Form */}
           <div className="bg-secondary p-8 md:p-10">
             <h3 className="text-xl font-bold mb-6">Envoyez-nous un message</h3>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <Label htmlFor="contact-name">Nom complet *</Label>
-                <Input
-                  id="contact-name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  className="mt-1.5 bg-background"
-                />
+
+            {isSubmitted ? (
+              <div className="flex items-center justify-center min-h-[300px]">
+                <p className="text-lg font-medium text-forest text-center">
+                  ✅ Votre message a été envoyé avec succès !
+                </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <Label htmlFor="contact-email">Email *</Label>
+                  <Label htmlFor="contact-name">Nom complet *</Label>
                   <Input
-                    id="contact-email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    id="contact-name"
+                    name="nom"
                     required
                     className="mt-1.5 bg-background"
                   />
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="contact-email">Email *</Label>
+                    <Input
+                      id="contact-email"
+                      type="email"
+                      name="email"
+                      required
+                      className="mt-1.5 bg-background"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contact-phone">Téléphone *</Label>
+                    <Input
+                      id="contact-phone"
+                      type="tel"
+                      name="telephone"
+                      required
+                      className="mt-1.5 bg-background"
+                    />
+                  </div>
+                </div>
                 <div>
-                  <Label htmlFor="contact-phone">Téléphone *</Label>
-                  <Input
-                    id="contact-phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  <Label htmlFor="contact-project">Type de projet</Label>
+                  <Select
+                    value={projectType}
+                    onValueChange={setProjectType}
+                  >
+                    <SelectTrigger className="mt-1.5 bg-background">
+                      <SelectValue placeholder="Sélectionnez une option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="achat">Achat d'un bien</SelectItem>
+                      <SelectItem value="valorisation">Valorisation foncière</SelectItem>
+                      <SelectItem value="investissement">Investissement</SelectItem>
+                      <SelectItem value="partenariat">Partenariat</SelectItem>
+                      <SelectItem value="autre">Autre</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <input type="hidden" name="type_projet" value={projectType} />
+                </div>
+                <div>
+                  <Label htmlFor="contact-message">Message *</Label>
+                  <Textarea
+                    id="contact-message"
+                    name="message"
                     required
-                    className="mt-1.5 bg-background"
+                    placeholder="Décrivez votre projet ou votre demande..."
+                    className="mt-1.5 bg-background min-h-[120px]"
                   />
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="contact-project">Type de projet</Label>
-                <Select
-                  value={formData.projectType}
-                  onValueChange={(value) => setFormData({ ...formData, projectType: value })}
-                >
-                  <SelectTrigger className="mt-1.5 bg-background">
-                    <SelectValue placeholder="Sélectionnez une option" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="achat">Achat d'un bien</SelectItem>
-                    <SelectItem value="valorisation">Valorisation foncière</SelectItem>
-                    <SelectItem value="investissement">Investissement</SelectItem>
-                    <SelectItem value="partenariat">Partenariat</SelectItem>
-                    <SelectItem value="autre">Autre</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="contact-message">Message *</Label>
-                <Textarea
-                  id="contact-message"
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  required
-                  placeholder="Décrivez votre projet ou votre demande..."
-                  className="mt-1.5 bg-background min-h-[120px]"
-                />
-              </div>
-              <Button type="submit" variant="forest" size="lg" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
-              </Button>
-            </form>
+                <Button type="submit" variant="forest" size="lg" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
+                </Button>
+              </form>
+            )}
           </div>
         </div>
       </div>
