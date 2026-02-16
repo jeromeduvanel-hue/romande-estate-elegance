@@ -104,12 +104,13 @@ const ValorisationSection = () => {
                 <p className="text-background/60 text-sm">Années d'expertise</p>
               </div>
               <div>
-                <p className="text-5xl md:text-6xl font-bold text-background mb-2">12+</p>
-                <p className="text-background/60 text-sm">Projets réalisés</p>
+                <p className="text-5xl md:text-6xl font-bold text-background mb-2">2</p>
+                <p className="text-background/60 text-sm">Projets réalisés en 2025</p>
               </div>
               <div>
-                <p className="text-5xl md:text-6xl font-bold text-background mb-2">98%</p>
-                <p className="text-background/60 text-sm">Clients satisfaits</p>
+                <p className="text-5xl md:text-6xl font-bold text-background mb-2">1 mois
+              </p>
+                <p className="text-background/60 text-sm">Délai moyen pour établir </p>
               </div>
               <div>
                 <p className="text-5xl md:text-6xl font-bold text-forest mb-2">CHF</p>
@@ -135,8 +136,7 @@ const ValorisationSection = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="analysis-name">Nom complet</Label>
-                <Input id="analysis-name" value={formData.name} onChange={(e) => setFormData({
-                ...formData,
+                <Input id="analysis-name" value={formData.name} onChange={(e) => setFormData({ ...formData,
                 name: e.target.value
               })} required className="mt-1.5" />
               </div>
