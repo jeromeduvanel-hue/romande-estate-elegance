@@ -103,11 +103,18 @@ const getEmailHtml = (data: ContactRequest): string => {
   `;
 
   if (data.message) {
+    const sanitizedMessage = data.message
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;")
+      .replace(/\n/g, "<br>");
     content += `
         <div style="margin-top: 20px;">
           <p style="font-weight: bold; margin-bottom: 10px;">Message :</p>
           <div style="background-color: #ffffff; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px;">
-            ${data.message.replace(/\n/g, "<br>")}
+            ${sanitizedMessage}
           </div>
         </div>
     `;
@@ -126,12 +133,35 @@ const getEmailHtml = (data: ContactRequest): string => {
   return content;
 };
 
+const sanitizeInput = (str: string): string => {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+    .trim();
+};
+
+const validateEmail = (email: string): boolean => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email) && email.length <= 255;
+};
+
 const handler = async (req: Request): Promise<Response> => {
   console.log("send-contact-email function called");
 
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Only allow POST
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ success: false, error: "Méthode non autorisée" }), {
+      status: 405,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   }
 
   try {
@@ -152,26 +182,75 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const resend = new Resend(RESEND_API_KEY);
 
-    const data: ContactRequest = await req.json();
-    console.log("Received data:", JSON.stringify(data));
+    let rawData: unknown;
+    try {
+      rawData = await req.json();
+    } catch {
+      return new Response(JSON.stringify({ success: false, error: "JSON invalide" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const data = rawData as ContactRequest;
 
     // Validate required fields
     if (!data.name || !data.email || !data.type) {
-      throw new Error("Champs requis manquants: nom, email et type");
+      return new Response(JSON.stringify({ success: false, error: "Champs requis manquants" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
-    // Insert lead into database
+    // Validate types
+    const validTypes = ["contact", "valorisation", "brochure"];
+    if (!validTypes.includes(data.type)) {
+      return new Response(JSON.stringify({ success: false, error: "Type invalide" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Validate lengths
+    if (data.name.length > 200 || data.email.length > 255 || (data.message && data.message.length > 5000)) {
+      return new Response(JSON.stringify({ success: false, error: "Données trop longues" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Validate email format
+    if (!validateEmail(data.email)) {
+      return new Response(JSON.stringify({ success: false, error: "Email invalide" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Sanitize all string inputs for the email HTML
+    const sanitizedData: ContactRequest = {
+      type: data.type,
+      name: sanitizeInput(data.name),
+      email: sanitizeInput(data.email),
+      phone: data.phone ? sanitizeInput(data.phone) : undefined,
+      message: data.message ? data.message.trim().slice(0, 5000) : undefined,
+      projectType: data.projectType ? sanitizeInput(data.projectType) : undefined,
+      address: data.address ? sanitizeInput(data.address) : undefined,
+      projectTitle: data.projectTitle ? sanitizeInput(data.projectTitle) : undefined,
+    };
+
+    // Insert lead into database (use raw trimmed data for DB)
     const { data: lead, error: dbError } = await supabase
       .from("leads")
       .insert({
         type: data.type,
-        name: data.name,
-        email: data.email,
-        phone: data.phone || null,
-        message: data.message || null,
-        project_type: data.projectType || null,
-        address: data.address || null,
-        project_title: data.projectTitle || null,
+        name: data.name.trim(),
+        email: data.email.trim(),
+        phone: data.phone?.trim() || null,
+        message: data.message?.trim().slice(0, 5000) || null,
+        project_type: data.projectType?.trim() || null,
+        address: data.address?.trim() || null,
+        project_title: data.projectTitle?.trim() || null,
         email_sent: false,
       })
       .select()
@@ -190,9 +269,9 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Trois Dimensions <noreply@trois-dimensions.ch>",
       to: ["contact@trois-dimensions.ch"],
-      subject: getEmailSubject(data.type, data.name),
-      html: getEmailHtml(data),
-      reply_to: data.email,
+      subject: getEmailSubject(sanitizedData.type, sanitizedData.name),
+      html: getEmailHtml(sanitizedData),
+      reply_to: sanitizedData.email,
     });
 
     console.log("Email sent:", emailResponse);
