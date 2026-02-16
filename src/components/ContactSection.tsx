@@ -9,31 +9,31 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  SelectValue } from
+"@/components/ui/select";
 
 const contactInfo = [
-  {
-    icon: MapPin,
-    title: "Adresse",
-    content: "Trois Dimensions SA\nRue de l'Etang 25\n1630 Bulle, Suisse",
-  },
-  {
-    icon: Phone,
-    title: "Téléphone",
-    content: "026 913 93 91",
-  },
-  {
-    icon: Mail,
-    title: "Email",
-    content: "contact@trois-dimensions.ch",
-  },
-  {
-    icon: Clock,
-    title: "Horaires",
-    content: "Lun - Ven: 9h00 - 17h00",
-  },
-];
+{
+  icon: MapPin,
+  title: "Adresse",
+  content: "Trois Dimensions SA\nRue de l'Etang 25\n1630 Bulle, Suisse"
+},
+{
+  icon: Phone,
+  title: "Téléphone",
+  content: "026 913 93 91"
+},
+{
+  icon: Mail,
+  title: "Email",
+  content: "contact@trois-dimensions.ch"
+},
+{
+  icon: Clock,
+  title: "Horaires",
+  content: "Lun - Ven: 9h00 - 17h00"
+}];
+
 
 const ContactSection = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -52,7 +52,7 @@ const ContactSection = () => {
       const res = await fetch("https://formspree.io/f/meelgwod", {
         method: "POST",
         body: formData,
-        headers: { Accept: "application/json" },
+        headers: { Accept: "application/json" }
       });
       if (res.ok) {
         setIsSubmitted(true);
@@ -60,9 +60,9 @@ const ContactSection = () => {
         setProjectType("");
       }
     } catch {
+
       // silent fail
-    } finally {
-      setIsSubmitting(false);
+    } finally {setIsSubmitting(false);
     }
   };
 
@@ -84,19 +84,19 @@ const ContactSection = () => {
             </p>
 
             <div className="space-y-8">
-              {contactInfo.map((item, index) => (
-                <div key={index} className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-secondary flex items-center justify-center flex-shrink-0">
-                    <item.icon className="h-5 w-5 text-forest" />
-                  </div>
-                  <div>
-                    <p className="font-medium mb-1">{item.title}</p>
-                    <p className="text-muted-foreground whitespace-pre-line text-sm">
-                      {item.content}
-                    </p>
-                  </div>
-                </div>
-              ))}
+              {contactInfo.map((item, index) => {}
+
+
+
+
+
+
+
+
+
+
+
+              )}
             </div>
           </div>
 
@@ -104,51 +104,51 @@ const ContactSection = () => {
           <div className="bg-secondary p-8 md:p-10">
             <h3 className="text-xl font-bold mb-6">Envoyez-nous un message</h3>
 
-            {isSubmitted ? (
-              <div className="flex items-center justify-center min-h-[300px]">
+            {isSubmitted ?
+            <div className="flex items-center justify-center min-h-[300px]">
                 <p className="text-lg font-medium text-forest text-center">
                   ✅ Votre message a été envoyé avec succès !
                 </p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
+              </div> :
+
+            <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <Label htmlFor="contact-name">Nom complet *</Label>
                   <Input
-                    id="contact-name"
-                    name="nom"
-                    required
-                    className="mt-1.5 bg-background"
-                  />
+                  id="contact-name"
+                  name="nom"
+                  required
+                  className="mt-1.5 bg-background" />
+
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="contact-email">Email *</Label>
                     <Input
-                      id="contact-email"
-                      type="email"
-                      name="email"
-                      required
-                      className="mt-1.5 bg-background"
-                    />
+                    id="contact-email"
+                    type="email"
+                    name="email"
+                    required
+                    className="mt-1.5 bg-background" />
+
                   </div>
                   <div>
                     <Label htmlFor="contact-phone">Téléphone *</Label>
                     <Input
-                      id="contact-phone"
-                      type="tel"
-                      name="telephone"
-                      required
-                      className="mt-1.5 bg-background"
-                    />
+                    id="contact-phone"
+                    type="tel"
+                    name="telephone"
+                    required
+                    className="mt-1.5 bg-background" />
+
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="contact-project">Type de projet</Label>
                   <Select
-                    value={projectType}
-                    onValueChange={setProjectType}
-                  >
+                  value={projectType}
+                  onValueChange={setProjectType}>
+
                     <SelectTrigger className="mt-1.5 bg-background">
                       <SelectValue placeholder="Sélectionnez une option" />
                     </SelectTrigger>
@@ -165,23 +165,23 @@ const ContactSection = () => {
                 <div>
                   <Label htmlFor="contact-message">Message *</Label>
                   <Textarea
-                    id="contact-message"
-                    name="message"
-                    required
-                    placeholder="Décrivez votre projet ou votre demande..."
-                    className="mt-1.5 bg-background min-h-[120px]"
-                  />
+                  id="contact-message"
+                  name="message"
+                  required
+                  placeholder="Décrivez votre projet ou votre demande..."
+                  className="mt-1.5 bg-background min-h-[120px]" />
+
                 </div>
                 <Button type="submit" variant="forest" size="lg" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
                 </Button>
               </form>
-            )}
+            }
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default ContactSection;
