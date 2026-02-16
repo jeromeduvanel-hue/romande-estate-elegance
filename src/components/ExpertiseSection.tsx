@@ -24,7 +24,7 @@ const expertise = [
 {
   icon: Users,
   title: "Partenariats",
-  description: "Réseau étendu d'architectes, entrepreneurs et artisans d'excellence en Suisse Romande."
+  description: "Réseau étendu de constructeurs, entrepreneurs et artisans de qualité en Suisse Romande."
 },
 {
   icon: Landmark,
