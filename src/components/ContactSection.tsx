@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Mail, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,11 +17,6 @@ const contactInfo = [
   icon: MapPin,
   title: "Adresse",
   content: "Trois Dimensions SA\nRue de l'Etang 25\n1630 Bulle, Suisse"
-},
-{
-  icon: Phone,
-  title: "Téléphone",
-  content: "026 913 93 91"
 },
 {
   icon: Mail,
@@ -84,19 +79,17 @@ const ContactSection = () => {
             </p>
 
             <div className="space-y-8">
-              {contactInfo.map((item, index) => {}
-
-
-
-
-
-
-
-
-
-
-
-              )}
+              {contactInfo.map((item, index) => (
+                <div key={index} className="flex gap-4">
+                  <div className="w-10 h-10 bg-forest/10 flex items-center justify-center flex-shrink-0">
+                    <item.icon className="w-5 h-5 text-forest" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">{item.title}</h4>
+                    <p className="text-muted-foreground whitespace-pre-line">{item.content}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
