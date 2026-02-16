@@ -1,4 +1,5 @@
 import logo from "@/assets/logo-trois-dimensions.png";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -69,19 +70,14 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Légal</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-background/60 hover:text-background transition-colors text-sm">
+                <Link to="/mentions-legales" className="text-background/60 hover:text-background transition-colors text-sm">
                   Mentions légales
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-background/60 hover:text-background transition-colors text-sm">
+                <Link to="/politique-de-confidentialite" className="text-background/60 hover:text-background transition-colors text-sm">
                   Politique de confidentialité
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-background/60 hover:text-background transition-colors text-sm">
-                  CGV
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
