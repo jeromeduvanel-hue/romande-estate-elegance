@@ -46,7 +46,7 @@ const ExpertiseSection = () => {
           <h2 className="text-headline mb-6">
             Un savoir-faire reconnu
           </h2>
-          <p className="text-lg text-muted-foreground">Plus de 15 ans d'expérience dans le développement immobilier en Suisse Romande, au service de projets immobiliers résidentiels.
+          <p className="text-lg text-muted-foreground">Plus de 15 ans d'expérience en architecture et en développement immobilier en Suisse Romande, au service de projets immobiliers résidentiels.
 
 
           </p>
