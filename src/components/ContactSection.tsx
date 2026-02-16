@@ -16,7 +16,7 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Adresse",
-    content: "Rue de l'Etang 25\n1630 Bulle, Suisse",
+    content: "Trois Dimensions SA\nRue de l'Etang 25\n1630 Bulle, Suisse",
   },
   {
     icon: Phone,
