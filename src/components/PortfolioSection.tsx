@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 import residencePommiers from "@/assets/residence-pommiers.jpg";
-import villasCorcelles from "@/assets/villas-corcelles.png";
+import villasCorcelles from "@/assets/villas-corcelles-jardin.jpg";
 
 interface Project {
   id: number;
@@ -45,7 +45,7 @@ const projects: Project[] = [
   units: "6 villas - Vendu",
   status: "Réalisé",
   image: villasCorcelles,
-  description: "Développement d'un projet de 6 villas mitoyennes à Corcelles-près-Payerne, offrant un cadre de vie idéal pour les familles."
+  description: "Développement du projet et obtention du permis de construire en 5 mois. 6 villas mitoyennes à Corcelles-près-Payerne, offrant un cadre de vie idéal pour les familles."
 }];
 
 
@@ -184,13 +184,6 @@ const PortfolioSection = () => {
                   {selectedProject.description}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button
-                  variant="forest"
-                  size="lg"
-                  onClick={() => setShowBrochureForm(true)}>
-
-                    Télécharger la brochure
-                  </Button>
                   <Button
                   variant="outline"
                   size="lg"
