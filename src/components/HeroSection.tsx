@@ -35,8 +35,8 @@ const HeroSection = () => {
             l'immobilier
           </h1>
           
-          <p className="text-subheadline text-background/80 max-w-2xl mx-auto mb-12 animate-fade-up opacity-0" style={{ animationDelay: "0.6s" }}>Développement immobilier et construction de projets résidentiels. De l'étude de faisabilité à la livraison clé en main.
-
+          <p className="text-subheadline text-background/80 max-w-2xl mx-auto mb-12 animate-fade-up opacity-0" style={{ animationDelay: "0.6s" }}>Développement et construction de projets immobiliers. 
+De l'étude de faisabilité à la livraison clé en main.
 
           </p>
           
