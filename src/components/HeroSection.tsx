@@ -25,8 +25,8 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 container-swiss text-center pt-24">
         <div className="max-w-4xl mx-auto">
-          <p className="text-sm md:text-base uppercase tracking-[0.3em] text-background/70 mb-6 animate-fade-up opacity-0" style={{ animationDelay: "0.2s" }}>
-            Promoteur Immobilier
+          <p className="text-sm md:text-base uppercase tracking-[0.3em] text-background/70 mb-6 animate-fade-up opacity-0" style={{ animationDelay: "0.2s" }}>PROMOTEUR IMMOBILIER DE QUALITÉ
+
           </p>
           
           <h1 className="text-display text-background mb-8 animate-fade-up opacity-0" style={{ animationDelay: "0.4s" }}>
