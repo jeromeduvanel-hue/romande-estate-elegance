@@ -100,8 +100,8 @@ const PortfolioSection = () => {
           <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4 animate-fade-up opacity-0" style={{ animationDelay: "0.1s" }}>
             Portfolio
           </p>
-          <h2 className="text-headline mb-6 animate-fade-up opacity-0" style={{ animationDelay: "0.2s" }}>
-            Nos réalisations
+          <h2 className="text-headline mb-6 animate-fade-up opacity-0" style={{ animationDelay: "0.2s" }}>Réalisations
+
           </h2>
           <p className="text-lg text-muted-foreground animate-fade-up opacity-0" style={{ animationDelay: "0.3s" }}>Chaque projet reflète notre engagement pour l'architecture et notre expertise du marché immobilier romand.
 
