@@ -20,7 +20,7 @@ const Footer = () => {
             <a href="#" className="inline-block">
               <img src={logo} alt="Trois Dimensions SA" className="h-12 w-auto" />
             </a>
-            <p className="mt-4 text-background/60 max-w-md leading-relaxed">Promoteur immobilier en Suisse Romande. Développement, construction et valorisation de projets résidentiels de qualité. 
+            <p className="mt-4 text-background/60 max-w-md leading-relaxed">Promoteur immobilier en Suisse Romande. Développement, construction et valorisation de projets immobiliers de qualité. 
 
 
             </p>
