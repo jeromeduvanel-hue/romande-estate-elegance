@@ -111,6 +111,7 @@ const ContactSection = () => {
                   id="contact-name"
                   name="nom"
                   required
+                  maxLength={200}
                   className="mt-1.5 bg-background" />
 
                 </div>
@@ -122,6 +123,7 @@ const ContactSection = () => {
                     type="email"
                     name="email"
                     required
+                    maxLength={255}
                     className="mt-1.5 bg-background" />
 
                   </div>
@@ -161,6 +163,7 @@ const ContactSection = () => {
                   id="contact-message"
                   name="message"
                   required
+                  maxLength={5000}
                   placeholder="Décrivez votre projet ou votre demande..."
                   className="mt-1.5 bg-background min-h-[120px]" />
 

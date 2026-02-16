@@ -1,9 +1,15 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
 
 const MentionsLegales = () => {
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <SEOHead
+        title="Mentions légales | Trois Dimensions SA"
+        description="Mentions légales du site Trois Dimensions SA, promoteur immobilier à Bulle, Suisse."
+        canonical="https://trois-dimensions.ch/mentions-legales"
+      />
       <div className="container-swiss py-24 md:py-32 max-w-3xl">
         <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-10">
           <ArrowLeft className="h-4 w-4" />
