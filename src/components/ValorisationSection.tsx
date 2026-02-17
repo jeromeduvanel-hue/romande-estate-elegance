@@ -1,29 +1,22 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useForm, ValidationError } from "@formspree/react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 
 const benefits = ["Estimation gratuite de votre bien", "Étude de faisabilité complète", "Accompagnement juridique et fiscal", "Solutions de financement sur mesure"];
 
 const ValorisationSection = () => {
   const [showForm, setShowForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const { toast } = useToast();
+  const [state, handleSubmit, reset] = useForm("mgolkryb");
 
-  const handleIframeLoad = () => {
-    // Only trigger after actual form submission (not initial render)
-    if (isSubmitting) {
-      setIsSubmitting(false);
-      toast({
-        title: "Demande envoyée",
-        description: "Un expert vous contactera dans les 48h pour planifier une analyse."
-      });
+  const handleClose = (open: boolean) => {
+    if (!open) {
       setShowForm(false);
+      if (state.succeeded) reset();
     }
   };
 
@@ -72,74 +65,69 @@ const ValorisationSection = () => {
                 <p className="text-background/60 text-sm">Projets réalisés en 2025</p>
               </div>
               <div>
-                <p className="text-5xl md:text-6xl font-bold text-background mb-2">1 mois
-              </p>
-                <p className="text-background/60 text-sm">Délai moyen pour un avant projet </p>
+                <p className="text-5xl md:text-6xl font-bold text-background mb-2">1 mois</p>
+                <p className="text-background/60 text-sm">Délai moyen pour un avant projet</p>
               </div>
               <div>
-                <p className="text-5xl md:text-6xl font-bold text-forest mb-2">FR-VD
-              </p>
-                <p className="text-background/60 text-sm">Notre coeur d'activité
-              </p>
+                <p className="text-5xl md:text-6xl font-bold text-forest mb-2">FR-VD</p>
+                <p className="text-background/60 text-sm">Notre coeur d'activité</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hidden iframe for form submission */}
-      <iframe
-        ref={iframeRef}
-        name="formspree-iframe-valorisation"
-        style={{ display: "none" }}
-        onLoad={handleIframeLoad}
-      />
-
       {/* Analysis Form Dialog */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
+      <Dialog open={showForm} onOpenChange={handleClose}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">
               Demande d'analyse foncière
             </DialogTitle>
           </DialogHeader>
-          <p className="text-muted-foreground text-sm mb-6">
-            Décrivez votre bien et un expert vous contactera pour une analyse personnalisée.
-          </p>
-          <form
-            action="https://formspree.io/f/mgolkryb"
-            method="POST"
-            target="formspree-iframe-valorisation"
-            onSubmit={() => setIsSubmitting(true)}
-            className="space-y-4"
-          >
-            <input type="hidden" name="type_demande" value="Analyse foncière" />
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="analysis-name">Nom complet</Label>
-                <Input id="analysis-name" name="nom" required maxLength={200} className="mt-1.5" />
-              </div>
-              <div>
-                <Label htmlFor="analysis-phone">Téléphone</Label>
-                <Input id="analysis-phone" type="tel" name="telephone" required className="mt-1.5" />
-              </div>
+
+          {state.succeeded ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <p className="text-lg font-medium text-forest text-center">
+                ✅ Votre demande a été envoyée avec succès !
+              </p>
             </div>
-            <div>
-              <Label htmlFor="analysis-email">Email</Label>
-              <Input id="analysis-email" type="email" name="email" required maxLength={255} className="mt-1.5" />
-            </div>
-            <div>
-              <Label htmlFor="analysis-address">Adresse du bien</Label>
-              <Input id="analysis-address" name="adresse_bien" placeholder="Rue, NPA, Ville" required className="mt-1.5" />
-            </div>
-            <div>
-              <Label htmlFor="analysis-message">Description (optionnel)</Label>
-              <Textarea id="analysis-message" name="message" placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" maxLength={5000} />
-            </div>
-            <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={isSubmitting}>
-              {isSubmitting ? "Envoi en cours..." : "Envoyer la demande"}
-            </Button>
-          </form>
+          ) : (
+            <>
+              <p className="text-muted-foreground text-sm mb-6">
+                Décrivez votre bien et un expert vous contactera pour une analyse personnalisée.
+              </p>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input type="hidden" name="type_demande" value="Analyse foncière" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="analysis-name">Nom complet</Label>
+                    <Input id="analysis-name" name="nom" required maxLength={200} className="mt-1.5" />
+                  </div>
+                  <div>
+                    <Label htmlFor="analysis-phone">Téléphone</Label>
+                    <Input id="analysis-phone" type="tel" name="telephone" required className="mt-1.5" />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="analysis-email">Email</Label>
+                  <Input id="analysis-email" type="email" name="email" required maxLength={255} className="mt-1.5" />
+                  <ValidationError prefix="Email" field="email" errors={state.errors} />
+                </div>
+                <div>
+                  <Label htmlFor="analysis-address">Adresse du bien</Label>
+                  <Input id="analysis-address" name="adresse_bien" placeholder="Rue, NPA, Ville" required className="mt-1.5" />
+                </div>
+                <div>
+                  <Label htmlFor="analysis-message">Description (optionnel)</Label>
+                  <Textarea id="analysis-message" name="message" placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" maxLength={5000} />
+                </div>
+                <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={state.submitting}>
+                  {state.submitting ? "Envoi en cours..." : "Envoyer la demande"}
+                </Button>
+              </form>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </section>;
