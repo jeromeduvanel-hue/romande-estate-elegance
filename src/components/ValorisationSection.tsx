@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -16,6 +16,9 @@ const ValorisationSection = () => {
   const [submitting, setSubmitting] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const recaptchaRef = useRef<HTMLDivElement | null>(null);
+  const widgetIdRef = useRef<number | null>(null);
 
   const handleClose = (open: boolean) => {
     if (!open) {
@@ -27,23 +30,14 @@ const ValorisationSection = () => {
     }
   };
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError(null);
-    const formData = new FormData(e.currentTarget);
+  const submitWithToken = useCallback(async (token: string) => {
+    const form = formRef.current;
+    if (!form) return;
+
+    const formData = new FormData(form);
     const jsonBody: Record<string, string> = {};
     formData.forEach((value, key) => { jsonBody[key] = value as string; });
-
-    try {
-      if ((window as any).grecaptcha) {
-        await new Promise<void>((resolve) => (window as any).grecaptcha.ready(resolve));
-        const token = await (window as any).grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' });
-        jsonBody["g-recaptcha-response"] = token;
-      }
-    } catch (err) {
-      console.warn("reCAPTCHA token error, submitting without:", err);
-    }
+    jsonBody["g-recaptcha-response"] = token;
 
     try {
       const res = await fetch(FORMSPREE_URL, {
@@ -60,6 +54,97 @@ const ValorisationSection = () => {
       }
     } catch (err) {
       console.error("Submit error:", err);
+      setError("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setSubmitting(false);
+      if (widgetIdRef.current !== null && (window as any).grecaptcha) {
+        (window as any).grecaptcha.reset(widgetIdRef.current);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    (window as any).__valorisationRecaptchaCallback = (token: string) => {
+      submitWithToken(token);
+    };
+
+    return () => {
+      delete (window as any).__valorisationRecaptchaCallback;
+    };
+  }, [submitWithToken]);
+
+  // Render widget when dialog opens
+  useEffect(() => {
+    if (!showForm) {
+      widgetIdRef.current = null;
+      return;
+    }
+
+    const renderWidget = () => {
+      if (recaptchaRef.current && (window as any).grecaptcha?.render && widgetIdRef.current === null) {
+        try {
+          widgetIdRef.current = (window as any).grecaptcha.render(recaptchaRef.current, {
+            sitekey: RECAPTCHA_SITE_KEY,
+            size: "invisible",
+            callback: "__valorisationRecaptchaCallback",
+          });
+        } catch (e) {
+          // Widget may already be rendered
+        }
+      }
+    };
+
+    // Small delay to ensure DOM is ready
+    const timeout = setTimeout(() => {
+      if ((window as any).grecaptcha?.render) {
+        renderWidget();
+      } else {
+        const interval = setInterval(() => {
+          if ((window as any).grecaptcha?.render) {
+            renderWidget();
+            clearInterval(interval);
+          }
+        }, 200);
+        setTimeout(() => clearInterval(interval), 5000);
+      }
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, [showForm]);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    formRef.current = e.currentTarget;
+
+    try {
+      if ((window as any).grecaptcha && widgetIdRef.current !== null) {
+        (window as any).grecaptcha.execute(widgetIdRef.current);
+        return;
+      }
+    } catch (err) {
+      console.warn("reCAPTCHA error, submitting without:", err);
+    }
+
+    // Fallback
+    const formData = new FormData(e.currentTarget);
+    const jsonBody: Record<string, string> = {};
+    formData.forEach((value, key) => { jsonBody[key] = value as string; });
+
+    try {
+      const res = await fetch(FORMSPREE_URL, {
+        method: "POST",
+        body: JSON.stringify(jsonBody),
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        setSucceeded(true);
+      } else {
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "Une erreur est survenue. Veuillez réessayer.");
+      }
+    } catch (err) {
       setError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setSubmitting(false);
@@ -115,7 +200,7 @@ const ValorisationSection = () => {
                 <p className="text-background/60 text-sm">Délai moyen pour un avant projet</p>
               </div>
               <div>
-                <p className="text-5xl md:text-6xl font-bold text-forest mb-2">FR-VD</p>
+                <p className="text-5xl md:text-6xl font-bold text-background mb-2">FR-VD</p>
                 <p className="text-background/60 text-sm">Notre coeur d'activité</p>
               </div>
             </div>
@@ -143,7 +228,7 @@ const ValorisationSection = () => {
               <p className="text-muted-foreground text-sm mb-6">
                 Décrivez votre bien et un expert vous contactera pour une analyse personnalisée.
               </p>
-              <form onSubmit={onSubmit} className="space-y-4">
+              <form ref={formRef} onSubmit={onSubmit} className="space-y-4">
                 <input type="hidden" name="type_demande" value="Analyse foncière" />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -168,6 +253,7 @@ const ValorisationSection = () => {
                   <Textarea id="analysis-message" name="message" placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" maxLength={5000} />
                 </div>
                 {error && <p className="text-sm text-destructive">{error}</p>}
+                <div ref={recaptchaRef} />
                 <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={submitting}>
                   {submitting ? "Envoi en cours..." : "Envoyer la demande"}
                 </Button>
