@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { MapPin, Mail, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,44 +32,11 @@ const ContactSection = () => {
   const formRef = useRef<HTMLFormElement | null>(null);
   const recaptchaRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<number | null>(null);
-
-  const submitWithToken = useCallback(async (token: string) => {
-    const form = formRef.current;
-    if (!form) return;
-
-    const formData = new FormData(form);
-    const jsonBody: Record<string, string> = {};
-    formData.forEach((value, key) => { jsonBody[key] = value as string; });
-    jsonBody["g-recaptcha-response"] = token;
-
-    try {
-      const res = await fetch(FORMSPREE_URL, {
-        method: "POST",
-        body: JSON.stringify(jsonBody),
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
-      });
-
-      if (res.ok) {
-        setSucceeded(true);
-      } else {
-        const data = await res.json().catch(() => null);
-        setError(data?.error || "Une erreur est survenue. Veuillez réessayer.");
-      }
-    } catch (err) {
-      console.error("Submit error:", err);
-      setError("Une erreur est survenue. Veuillez réessayer.");
-    } finally {
-      setSubmitting(false);
-      if (widgetIdRef.current !== null && (window as any).grecaptcha) {
-        (window as any).grecaptcha.reset(widgetIdRef.current);
-      }
-    }
-  }, []);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   useEffect(() => {
-    // Expose callback globally for reCAPTCHA
     (window as any).__contactRecaptchaCallback = (token: string) => {
-      submitWithToken(token);
+      setRecaptchaToken(token);
     };
 
     const renderWidget = () => {
@@ -77,7 +44,7 @@ const ContactSection = () => {
         try {
           widgetIdRef.current = (window as any).grecaptcha.render(recaptchaRef.current, {
             sitekey: RECAPTCHA_SITE_KEY,
-            size: "invisible",
+            size: "normal",
             callback: "__contactRecaptchaCallback",
           });
         } catch (e) {
@@ -89,7 +56,6 @@ const ContactSection = () => {
     if ((window as any).grecaptcha && (window as any).grecaptcha.render) {
       renderWidget();
     } else {
-      // Wait for script to load
       const interval = setInterval(() => {
         if ((window as any).grecaptcha && (window as any).grecaptcha.render) {
           renderWidget();
@@ -98,27 +64,23 @@ const ContactSection = () => {
       }, 200);
       return () => clearInterval(interval);
     }
-  }, [submitWithToken]);
+  }, []);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitting(true);
-    setError(null);
-    formRef.current = e.currentTarget;
 
-    try {
-      if ((window as any).grecaptcha && widgetIdRef.current !== null) {
-        (window as any).grecaptcha.execute(widgetIdRef.current);
-        return; // callback will handle submission
-      }
-    } catch (err) {
-      console.warn("reCAPTCHA error, submitting without:", err);
+    if (!recaptchaToken) {
+      setError("Veuillez cocher la case reCAPTCHA avant d'envoyer.");
+      return;
     }
 
-    // Fallback: submit without reCAPTCHA
+    setSubmitting(true);
+    setError(null);
+
     const formData = new FormData(e.currentTarget);
     const jsonBody: Record<string, string> = {};
     formData.forEach((value, key) => { jsonBody[key] = value as string; });
+    jsonBody["g-recaptcha-response"] = recaptchaToken;
 
     try {
       const res = await fetch(FORMSPREE_URL, {
@@ -136,6 +98,10 @@ const ContactSection = () => {
       setError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setSubmitting(false);
+      setRecaptchaToken(null);
+      if (widgetIdRef.current !== null && (window as any).grecaptcha) {
+        (window as any).grecaptcha.reset(widgetIdRef.current);
+      }
     }
   };
 
