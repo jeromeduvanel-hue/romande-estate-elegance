@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useForm, ValidationError } from "@formspree/react";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+const RECAPTCHA_SITE_KEY = "6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O";
+
 const benefits = ["Estimation gratuite de votre bien", "Étude de faisabilité complète", "Accompagnement juridique et fiscal", "Solutions de financement sur mesure"];
 
 const ValorisationSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [state, handleSubmit, reset] = useForm("mgolkryb");
-  const recaptchaRef = useRef<HTMLDivElement>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleClose = (open: boolean) => {
     if (!open) {
@@ -21,19 +23,21 @@ const ValorisationSection = () => {
     }
   };
 
-  useEffect(() => {
-    if (showForm && recaptchaRef.current && (window as any).grecaptcha) {
-      // Clear previous widget if any
-      recaptchaRef.current.innerHTML = '';
-      try {
-        (window as any).grecaptcha.render(recaptchaRef.current, {
-          sitekey: '6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O',
-        });
-      } catch (e) {
-        // Already rendered
-      }
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const token = await (window as any).grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' });
+      const form = e.currentTarget;
+      const hiddenInput = form.querySelector('input[name="g-recaptcha-response"]') as HTMLInputElement;
+      if (hiddenInput) hiddenInput.value = token;
+      await handleSubmit(e);
+    } catch (err) {
+      console.error("reCAPTCHA error:", err);
+    } finally {
+      setSubmitting(false);
     }
-  }, [showForm]);
+  };
 
   return <section id="valorisation" className="py-24 md:py-32 bg-foreground text-background">
       <div className="container-swiss">
@@ -112,7 +116,8 @@ const ValorisationSection = () => {
               <p className="text-muted-foreground text-sm mb-6">
                 Décrivez votre bien et un expert vous contactera pour une analyse personnalisée.
               </p>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={onSubmit} className="space-y-4">
+                <input type="hidden" name="g-recaptcha-response" value="" />
                 <input type="hidden" name="type_demande" value="Analyse foncière" />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -137,9 +142,8 @@ const ValorisationSection = () => {
                   <Label htmlFor="analysis-message">Description (optionnel)</Label>
                   <Textarea id="analysis-message" name="message" placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" maxLength={5000} />
                 </div>
-                <div ref={recaptchaRef}></div>
-                <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={state.submitting}>
-                  {state.submitting ? "Envoi en cours..." : "Envoyer la demande"}
+                <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={submitting || state.submitting}>
+                  {submitting || state.submitting ? "Envoi en cours..." : "Envoyer la demande"}
                 </Button>
               </form>
             </>

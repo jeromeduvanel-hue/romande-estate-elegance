@@ -1,10 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 import { MapPin, Mail, Clock } from "lucide-react";
 import { useForm, ValidationError } from "@formspree/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+
+const RECAPTCHA_SITE_KEY = "6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O";
 
 const contactInfo = [
 {
@@ -25,28 +27,23 @@ const contactInfo = [
 
 const ContactSection = () => {
   const [state, handleSubmit] = useForm("mgolkryb");
-  const recaptchaRef = useRef<HTMLDivElement>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    const renderWidget = () => {
-      if (recaptchaRef.current && (window as any).grecaptcha?.render) {
-        recaptchaRef.current.innerHTML = '';
-        try {
-          (window as any).grecaptcha.render(recaptchaRef.current, {
-            sitekey: '6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O',
-          });
-        } catch (e) { /* already rendered */ }
-      }
-    };
-
-    // If grecaptcha already loaded, render immediately
-    if ((window as any).grecaptcha?.render) {
-      renderWidget();
-    } else {
-      // Wait for script to load
-      (window as any).onRecaptchaLoad = renderWidget;
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const token = await (window as any).grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' });
+      const form = e.currentTarget;
+      const hiddenInput = form.querySelector('input[name="g-recaptcha-response"]') as HTMLInputElement;
+      if (hiddenInput) hiddenInput.value = token;
+      await handleSubmit(e);
+    } catch (err) {
+      console.error("reCAPTCHA error:", err);
+    } finally {
+      setSubmitting(false);
     }
-  }, [state.succeeded]);
+  };
 
   return (
     <section id="contact" className="py-24 md:py-32 bg-background">
@@ -91,40 +88,22 @@ const ContactSection = () => {
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={onSubmit} className="space-y-5">
+                <input type="hidden" name="g-recaptcha-response" value="" />
                 <div>
                   <Label htmlFor="contact-name">Nom complet *</Label>
-                  <Input
-                    id="contact-name"
-                    name="nom"
-                    required
-                    maxLength={200}
-                    className="mt-1.5 bg-background"
-                  />
+                  <Input id="contact-name" name="nom" required maxLength={200} className="mt-1.5 bg-background" />
                   <ValidationError prefix="Nom" field="nom" errors={state.errors} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="contact-email">Email *</Label>
-                    <Input
-                      id="contact-email"
-                      type="email"
-                      name="email"
-                      required
-                      maxLength={255}
-                      className="mt-1.5 bg-background"
-                    />
+                    <Input id="contact-email" type="email" name="email" required maxLength={255} className="mt-1.5 bg-background" />
                     <ValidationError prefix="Email" field="email" errors={state.errors} />
                   </div>
                   <div>
                     <Label htmlFor="contact-phone">Téléphone *</Label>
-                    <Input
-                      id="contact-phone"
-                      type="tel"
-                      name="telephone"
-                      required
-                      className="mt-1.5 bg-background"
-                    />
+                    <Input id="contact-phone" type="tel" name="telephone" required className="mt-1.5 bg-background" />
                   </div>
                 </div>
                 <div>
@@ -154,9 +133,8 @@ const ContactSection = () => {
                   />
                   <ValidationError prefix="Message" field="message" errors={state.errors} />
                 </div>
-                <div ref={recaptchaRef}></div>
-                <Button type="submit" variant="forest" size="lg" className="w-full" disabled={state.submitting}>
-                  {state.submitting ? "Envoi en cours..." : "Envoyer le message"}
+                <Button type="submit" variant="forest" size="lg" className="w-full" disabled={submitting || state.submitting}>
+                  {submitting || state.submitting ? "Envoi en cours..." : "Envoyer le message"}
                 </Button>
               </form>
             )}
