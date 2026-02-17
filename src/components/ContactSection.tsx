@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { MapPin, Mail, Clock } from "lucide-react";
-import { useForm, ValidationError } from "@formspree/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 const RECAPTCHA_SITE_KEY = "6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O";
+const FORMSPREE_URL = "https://formspree.io/f/mgolkryb";
 
 const contactInfo = [
 {
@@ -26,20 +26,43 @@ const contactInfo = [
 }];
 
 const ContactSection = () => {
-  const [state, handleSubmit] = useForm("mgolkryb");
   const [submitting, setSubmitting] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
+    setError(null);
+    const formData = new FormData(e.currentTarget);
+
     try {
-      const token = await (window as any).grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' });
-      const form = e.currentTarget;
-      const hiddenInput = form.querySelector('input[name="g-recaptcha-response"]') as HTMLInputElement;
-      if (hiddenInput) hiddenInput.value = token;
-      await handleSubmit(e);
+      // Try to get reCAPTCHA token
+      if ((window as any).grecaptcha) {
+        await new Promise<void>((resolve) => (window as any).grecaptcha.ready(resolve));
+        const token = await (window as any).grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' });
+        formData.set("g-recaptcha-response", token);
+      }
     } catch (err) {
-      console.error("reCAPTCHA error:", err);
+      console.warn("reCAPTCHA token error, submitting without:", err);
+    }
+
+    try {
+      const res = await fetch(FORMSPREE_URL, {
+        method: "POST",
+        body: formData,
+        headers: { Accept: "application/json" },
+      });
+
+      if (res.ok) {
+        setSucceeded(true);
+      } else {
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "Une erreur est survenue. Veuillez réessayer.");
+      }
+    } catch (err) {
+      console.error("Submit error:", err);
+      setError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setSubmitting(false);
     }
@@ -81,7 +104,7 @@ const ContactSection = () => {
           <div className="bg-secondary p-8 md:p-10">
             <h3 className="text-xl font-bold mb-6">Envoyez-nous un message</h3>
 
-            {state.succeeded ? (
+            {succeeded ? (
               <div className="flex items-center justify-center min-h-[300px]">
                 <p className="text-lg font-medium text-forest text-center">
                   ✅ Votre message a été envoyé avec succès !
@@ -89,17 +112,14 @@ const ContactSection = () => {
               </div>
             ) : (
               <form onSubmit={onSubmit} className="space-y-5">
-                <input type="hidden" name="g-recaptcha-response" value="" />
                 <div>
                   <Label htmlFor="contact-name">Nom complet *</Label>
                   <Input id="contact-name" name="nom" required maxLength={200} className="mt-1.5 bg-background" />
-                  <ValidationError prefix="Nom" field="nom" errors={state.errors} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="contact-email">Email *</Label>
                     <Input id="contact-email" type="email" name="email" required maxLength={255} className="mt-1.5 bg-background" />
-                    <ValidationError prefix="Email" field="email" errors={state.errors} />
                   </div>
                   <div>
                     <Label htmlFor="contact-phone">Téléphone *</Label>
@@ -131,10 +151,10 @@ const ContactSection = () => {
                     placeholder="Décrivez votre projet ou votre demande..."
                     className="mt-1.5 bg-background min-h-[120px]"
                   />
-                  <ValidationError prefix="Message" field="message" errors={state.errors} />
                 </div>
-                <Button type="submit" variant="forest" size="lg" className="w-full" disabled={submitting || state.submitting}>
-                  {submitting || state.submitting ? "Envoi en cours..." : "Envoyer le message"}
+                {error && <p className="text-sm text-destructive">{error}</p>}
+                <Button type="submit" variant="forest" size="lg" className="w-full" disabled={submitting}>
+                  {submitting ? "Envoi en cours..." : "Envoyer le message"}
                 </Button>
               </form>
             )}

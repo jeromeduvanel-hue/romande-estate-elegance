@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { useForm, ValidationError } from "@formspree/react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -8,32 +7,58 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 const RECAPTCHA_SITE_KEY = "6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O";
+const FORMSPREE_URL = "https://formspree.io/f/mgolkryb";
 
 const benefits = ["Estimation gratuite de votre bien", "Étude de faisabilité complète", "Accompagnement juridique et fiscal", "Solutions de financement sur mesure"];
 
 const ValorisationSection = () => {
   const [showForm, setShowForm] = useState(false);
-  const [state, handleSubmit, reset] = useForm("mgolkryb");
   const [submitting, setSubmitting] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleClose = (open: boolean) => {
     if (!open) {
       setShowForm(false);
-      if (state.succeeded) reset();
+      if (succeeded) {
+        setSucceeded(false);
+        setError(null);
+      }
     }
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
+    setError(null);
+    const formData = new FormData(e.currentTarget);
+
     try {
-      const token = await (window as any).grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' });
-      const form = e.currentTarget;
-      const hiddenInput = form.querySelector('input[name="g-recaptcha-response"]') as HTMLInputElement;
-      if (hiddenInput) hiddenInput.value = token;
-      await handleSubmit(e);
+      if ((window as any).grecaptcha) {
+        await new Promise<void>((resolve) => (window as any).grecaptcha.ready(resolve));
+        const token = await (window as any).grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' });
+        formData.set("g-recaptcha-response", token);
+      }
     } catch (err) {
-      console.error("reCAPTCHA error:", err);
+      console.warn("reCAPTCHA token error, submitting without:", err);
+    }
+
+    try {
+      const res = await fetch(FORMSPREE_URL, {
+        method: "POST",
+        body: formData,
+        headers: { Accept: "application/json" },
+      });
+
+      if (res.ok) {
+        setSucceeded(true);
+      } else {
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "Une erreur est survenue. Veuillez réessayer.");
+      }
+    } catch (err) {
+      console.error("Submit error:", err);
+      setError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setSubmitting(false);
     }
@@ -105,7 +130,7 @@ const ValorisationSection = () => {
             </DialogTitle>
           </DialogHeader>
 
-          {state.succeeded ? (
+          {succeeded ? (
             <div className="flex items-center justify-center min-h-[200px]">
               <p className="text-lg font-medium text-forest text-center">
                 ✅ Votre demande a été envoyée avec succès !
@@ -117,7 +142,6 @@ const ValorisationSection = () => {
                 Décrivez votre bien et un expert vous contactera pour une analyse personnalisée.
               </p>
               <form onSubmit={onSubmit} className="space-y-4">
-                <input type="hidden" name="g-recaptcha-response" value="" />
                 <input type="hidden" name="type_demande" value="Analyse foncière" />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -132,7 +156,6 @@ const ValorisationSection = () => {
                 <div>
                   <Label htmlFor="analysis-email">Email</Label>
                   <Input id="analysis-email" type="email" name="email" required maxLength={255} className="mt-1.5" />
-                  <ValidationError prefix="Email" field="email" errors={state.errors} />
                 </div>
                 <div>
                   <Label htmlFor="analysis-address">Adresse du bien</Label>
@@ -142,8 +165,9 @@ const ValorisationSection = () => {
                   <Label htmlFor="analysis-message">Description (optionnel)</Label>
                   <Textarea id="analysis-message" name="message" placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" maxLength={5000} />
                 </div>
-                <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={submitting || state.submitting}>
-                  {submitting || state.submitting ? "Envoi en cours..." : "Envoyer la demande"}
+                {error && <p className="text-sm text-destructive">{error}</p>}
+                <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={submitting}>
+                  {submitting ? "Envoi en cours..." : "Envoyer la demande"}
                 </Button>
               </form>
             </>
