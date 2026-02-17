@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-const RECAPTCHA_SITE_KEY = "6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O";
+const RECAPTCHA_SITE_KEY = "6Lcxy24sAAAAAMYlgzrke3_g7tLDjG63qoMniLiB";
 const FORMSPREE_URL = "https://formspree.io/f/mgolkryb";
 
 const benefits = ["Estimation gratuite de votre bien", "Étude de faisabilité complète", "Accompagnement juridique et fiscal", "Solutions de financement sur mesure"];
