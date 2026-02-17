@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { MapPin, Mail, Clock } from "lucide-react";
+import { useForm, ValidationError } from "@formspree/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,23 +22,8 @@ const contactInfo = [
   content: "Lun - Ven: 9h00 - 17h00"
 }];
 
-
 const ContactSection = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  // Detect return from Formspree via URL param
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("formspree") === "ok") {
-      setIsSubmitted(true);
-      // Clean up the URL
-      window.history.replaceState({}, "", window.location.pathname + "#contact");
-    }
-  }, []);
-
-  const currentUrl = typeof window !== "undefined" 
-    ? window.location.origin + window.location.pathname + "?formspree=ok#contact"
-    : "";
+  const [state, handleSubmit] = useForm("mgolkryb");
 
   return (
     <section id="contact" className="py-24 md:py-32 bg-background">
@@ -76,47 +61,47 @@ const ContactSection = () => {
           <div className="bg-secondary p-8 md:p-10">
             <h3 className="text-xl font-bold mb-6">Envoyez-nous un message</h3>
 
-            {isSubmitted ?
-            <div className="flex items-center justify-center min-h-[300px]">
+            {state.succeeded ? (
+              <div className="flex items-center justify-center min-h-[300px]">
                 <p className="text-lg font-medium text-forest text-center">
                   ✅ Votre message a été envoyé avec succès !
                 </p>
-              </div> :
-
-            <form
-                action="https://formspree.io/f/mgolkryb"
-                method="POST"
-                className="space-y-5"
-              >
-                <input type="hidden" name="_next" value={currentUrl} />
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <Label htmlFor="contact-name">Nom complet *</Label>
                   <Input
-                  id="contact-name"
-                  name="nom"
-                  required
-                  maxLength={200}
-                  className="mt-1.5 bg-background" />
+                    id="contact-name"
+                    name="nom"
+                    required
+                    maxLength={200}
+                    className="mt-1.5 bg-background"
+                  />
+                  <ValidationError prefix="Nom" field="nom" errors={state.errors} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="contact-email">Email *</Label>
                     <Input
-                    id="contact-email"
-                    type="email"
-                    name="email"
-                    required
-                    maxLength={255}
-                    className="mt-1.5 bg-background" />
+                      id="contact-email"
+                      type="email"
+                      name="email"
+                      required
+                      maxLength={255}
+                      className="mt-1.5 bg-background"
+                    />
+                    <ValidationError prefix="Email" field="email" errors={state.errors} />
                   </div>
                   <div>
                     <Label htmlFor="contact-phone">Téléphone *</Label>
                     <Input
-                    id="contact-phone"
-                    type="tel"
-                    name="telephone"
-                    required
-                    className="mt-1.5 bg-background" />
+                      id="contact-phone"
+                      type="tel"
+                      name="telephone"
+                      required
+                      className="mt-1.5 bg-background"
+                    />
                   </div>
                 </div>
                 <div>
@@ -137,23 +122,25 @@ const ContactSection = () => {
                 <div>
                   <Label htmlFor="contact-message">Message *</Label>
                   <Textarea
-                  id="contact-message"
-                  name="message"
-                  required
-                  maxLength={5000}
-                  placeholder="Décrivez votre projet ou votre demande..."
-                  className="mt-1.5 bg-background min-h-[120px]" />
+                    id="contact-message"
+                    name="message"
+                    required
+                    maxLength={5000}
+                    placeholder="Décrivez votre projet ou votre demande..."
+                    className="mt-1.5 bg-background min-h-[120px]"
+                  />
+                  <ValidationError prefix="Message" field="message" errors={state.errors} />
                 </div>
-                <Button type="submit" variant="forest" size="lg" className="w-full">
-                  Envoyer le message
+                <Button type="submit" variant="forest" size="lg" className="w-full" disabled={state.submitting}>
+                  {state.submitting ? "Envoi en cours..." : "Envoyer le message"}
                 </Button>
               </form>
-            }
+            )}
           </div>
         </div>
       </div>
-    </section>);
-
+    </section>
+  );
 };
 
 export default ContactSection;
