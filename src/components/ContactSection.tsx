@@ -131,6 +131,7 @@ const ContactSection = () => {
                   />
                   <ValidationError prefix="Message" field="message" errors={state.errors} />
                 </div>
+                <div className="g-recaptcha" data-sitekey="6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O"></div>
                 <Button type="submit" variant="forest" size="lg" className="w-full" disabled={state.submitting}>
                   {state.submitting ? "Envoi en cours..." : "Envoyer le message"}
                 </Button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useForm, ValidationError } from "@formspree/react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ const benefits = ["Estimation gratuite de votre bien", "Étude de faisabilité c
 const ValorisationSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [state, handleSubmit, reset] = useForm("mgolkryb");
+  const recaptchaRef = useRef<HTMLDivElement>(null);
 
   const handleClose = (open: boolean) => {
     if (!open) {
@@ -19,6 +20,20 @@ const ValorisationSection = () => {
       if (state.succeeded) reset();
     }
   };
+
+  useEffect(() => {
+    if (showForm && recaptchaRef.current && (window as any).grecaptcha) {
+      // Clear previous widget if any
+      recaptchaRef.current.innerHTML = '';
+      try {
+        (window as any).grecaptcha.render(recaptchaRef.current, {
+          sitekey: '6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O',
+        });
+      } catch (e) {
+        // Already rendered
+      }
+    }
+  }, [showForm]);
 
   return <section id="valorisation" className="py-24 md:py-32 bg-foreground text-background">
       <div className="container-swiss">
@@ -122,6 +137,7 @@ const ValorisationSection = () => {
                   <Label htmlFor="analysis-message">Description (optionnel)</Label>
                   <Textarea id="analysis-message" name="message" placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" maxLength={5000} />
                 </div>
+                <div ref={recaptchaRef}></div>
                 <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={state.submitting}>
                   {state.submitting ? "Envoi en cours..." : "Envoyer la demande"}
                 </Button>
