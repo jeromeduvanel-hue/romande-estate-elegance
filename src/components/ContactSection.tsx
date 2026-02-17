@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import { useState, useEffect } from "react";
 import { MapPin, Mail, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,31 +25,20 @@ const contactInfo = [
 
 const ContactSection = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    try {
-      const res = await fetch("https://formspree.io/f/mgolkryb", {
-        method: "POST",
-        body: formData,
-        headers: { Accept: "application/json" }
-      });
-      if (res.ok) {
-        setIsSubmitted(true);
-        form.reset();
-      }
-    } catch {
-      // silent fail
-    } finally {
-      setIsSubmitting(false);
+  // Detect return from Formspree via URL param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("formspree") === "ok") {
+      setIsSubmitted(true);
+      // Clean up the URL
+      window.history.replaceState({}, "", window.location.pathname + "#contact");
     }
-  };
+  }, []);
+
+  const currentUrl = typeof window !== "undefined" 
+    ? window.location.origin + window.location.pathname + "?formspree=ok#contact"
+    : "";
 
   return (
     <section id="contact" className="py-24 md:py-32 bg-background">
@@ -97,9 +86,9 @@ const ContactSection = () => {
             <form
                 action="https://formspree.io/f/mgolkryb"
                 method="POST"
-                onSubmit={handleSubmit}
                 className="space-y-5"
               >
+                <input type="hidden" name="_next" value={currentUrl} />
                 <div>
                   <Label htmlFor="contact-name">Nom complet *</Label>
                   <Input
@@ -155,8 +144,8 @@ const ContactSection = () => {
                   placeholder="Décrivez votre projet ou votre demande..."
                   className="mt-1.5 bg-background min-h-[120px]" />
                 </div>
-                <Button type="submit" variant="forest" size="lg" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
+                <Button type="submit" variant="forest" size="lg" className="w-full">
+                  Envoyer le message
                 </Button>
               </form>
             }
