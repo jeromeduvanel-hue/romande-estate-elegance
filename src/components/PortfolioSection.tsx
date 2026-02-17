@@ -187,7 +187,10 @@ const PortfolioSection = () => {
                   <Button
                   variant="outline"
                   size="lg"
-                  onClick={() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })}>
+                  onClick={() => {
+                    setSelectedProject(null);
+                    setTimeout(() => document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" }), 300);
+                  }}>
 
                     Nous contacter
                   </Button>
