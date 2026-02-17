@@ -4,13 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue } from
-"@/components/ui/select";
 
 const contactInfo = [
 {
@@ -33,7 +26,6 @@ const contactInfo = [
 const ContactSection = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [projectType, setProjectType] = useState("");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,7 +33,6 @@ const ContactSection = () => {
 
     const form = e.currentTarget;
     const formData = new FormData(form);
-    formData.set("type_projet", projectType);
 
     try {
       const res = await fetch("https://formspree.io/f/mgolkryb", {
@@ -52,12 +43,11 @@ const ContactSection = () => {
       if (res.ok) {
         setIsSubmitted(true);
         form.reset();
-        setProjectType("");
       }
     } catch {
-
       // silent fail
-    } finally {setIsSubmitting(false);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -104,7 +94,12 @@ const ContactSection = () => {
                 </p>
               </div> :
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form
+                action="https://formspree.io/f/mgolkryb"
+                method="POST"
+                onSubmit={handleSubmit}
+                className="space-y-5"
+              >
                 <div>
                   <Label htmlFor="contact-name">Nom complet *</Label>
                   <Input
@@ -113,7 +108,6 @@ const ContactSection = () => {
                   required
                   maxLength={200}
                   className="mt-1.5 bg-background" />
-
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -125,7 +119,6 @@ const ContactSection = () => {
                     required
                     maxLength={255}
                     className="mt-1.5 bg-background" />
-
                   </div>
                   <div>
                     <Label htmlFor="contact-phone">Téléphone *</Label>
@@ -135,27 +128,22 @@ const ContactSection = () => {
                     name="telephone"
                     required
                     className="mt-1.5 bg-background" />
-
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="contact-project">Type de projet</Label>
-                  <Select
-                  value={projectType}
-                  onValueChange={setProjectType}>
-
-                    <SelectTrigger className="mt-1.5 bg-background">
-                      <SelectValue placeholder="Sélectionnez une option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="achat">Achat d'un bien</SelectItem>
-                      <SelectItem value="valorisation">Valorisation foncière</SelectItem>
-                      <SelectItem value="investissement">Investissement</SelectItem>
-                      <SelectItem value="partenariat">Partenariat</SelectItem>
-                      <SelectItem value="autre">Autre</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <input type="hidden" name="type_projet" value={projectType} />
+                  <select
+                    id="contact-project"
+                    name="type_projet"
+                    className="mt-1.5 flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  >
+                    <option value="">Sélectionnez une option</option>
+                    <option value="achat">Achat d'un bien</option>
+                    <option value="valorisation">Valorisation foncière</option>
+                    <option value="investissement">Investissement</option>
+                    <option value="partenariat">Partenariat</option>
+                    <option value="autre">Autre</option>
+                  </select>
                 </div>
                 <div>
                   <Label htmlFor="contact-message">Message *</Label>
@@ -166,7 +154,6 @@ const ContactSection = () => {
                   maxLength={5000}
                   placeholder="Décrivez votre projet ou votre demande..."
                   className="mt-1.5 bg-background min-h-[120px]" />
-
                 </div>
                 <Button type="submit" variant="forest" size="lg" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
