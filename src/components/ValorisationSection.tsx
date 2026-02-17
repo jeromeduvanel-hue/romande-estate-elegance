@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const benefits = ["Estimation gratuite de votre bien", "Étude de faisabilité complète", "Accompagnement juridique et fiscal", "Solutions de financement sur mesure"];
 
@@ -22,36 +21,30 @@ const ValorisationSection = () => {
   });
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const form = e.currentTarget;
+    const formDataObj = new FormData(form);
+
     try {
-      const { data, error } = await supabase.functions.invoke("send-contact-email", {
-        body: {
-          type: "valorisation",
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          message: formData.message
-        }
+      const res = await fetch("https://formspree.io/f/meelgwod", {
+        method: "POST",
+        body: formDataObj,
+        headers: { Accept: "application/json" }
       });
 
-      if (error) throw error;
-
-      toast({
-        title: "Demande envoyée",
-        description: "Un expert vous contactera dans les 48h pour planifier une analyse."
-      });
-      setShowForm(false);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        address: "",
-        message: ""
-      });
+      if (res.ok) {
+        toast({
+          title: "Demande envoyée",
+          description: "Un expert vous contactera dans les 48h pour planifier une analyse."
+        });
+        setShowForm(false);
+        setFormData({ name: "", email: "", phone: "", address: "", message: "" });
+      } else {
+        throw new Error("Erreur envoi");
+      }
     } catch (error) {
       console.error("Error sending request:", error);
       toast({
@@ -135,39 +128,28 @@ const ValorisationSection = () => {
             Décrivez votre bien et un expert vous contactera pour une analyse personnalisée.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <input type="hidden" name="type_demande" value="Analyse foncière" />
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="analysis-name">Nom complet</Label>
-                <Input id="analysis-name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required className="mt-1.5" />
+                <Input id="analysis-name" name="nom" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required maxLength={200} className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="analysis-phone">Téléphone</Label>
-                <Input id="analysis-phone" type="tel" value={formData.phone} onChange={(e) => setFormData({
-                ...formData,
-                phone: e.target.value
-              })} required className="mt-1.5" />
+                <Input id="analysis-phone" type="tel" name="telephone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} required className="mt-1.5" />
               </div>
             </div>
             <div>
               <Label htmlFor="analysis-email">Email</Label>
-              <Input id="analysis-email" type="email" value={formData.email} onChange={(e) => setFormData({
-              ...formData,
-              email: e.target.value
-            })} required className="mt-1.5" />
+              <Input id="analysis-email" type="email" name="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required maxLength={255} className="mt-1.5" />
             </div>
             <div>
               <Label htmlFor="analysis-address">Adresse du bien</Label>
-              <Input id="analysis-address" value={formData.address} onChange={(e) => setFormData({
-              ...formData,
-              address: e.target.value
-            })} placeholder="Rue, NPA, Ville" required className="mt-1.5" />
+              <Input id="analysis-address" name="adresse_bien" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Rue, NPA, Ville" required className="mt-1.5" />
             </div>
             <div>
               <Label htmlFor="analysis-message">Description (optionnel)</Label>
-              <Textarea id="analysis-message" value={formData.message} onChange={(e) => setFormData({
-              ...formData,
-              message: e.target.value
-            })} placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" />
+              <Textarea id="analysis-message" name="message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" maxLength={5000} />
             </div>
             <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={isSubmitting}>
               {isSubmitting ? "Envoi en cours..." : "Envoyer la demande"}
