@@ -29,7 +29,7 @@ const ValorisationSection = () => {
     const formDataObj = new FormData(form);
 
     try {
-      const res = await fetch("https://formspree.io/f/meelgwod", {
+      const res = await fetch("https://formspree.io/f/mgolkryb", {
         method: "POST",
         body: formDataObj,
         headers: { Accept: "application/json" }
