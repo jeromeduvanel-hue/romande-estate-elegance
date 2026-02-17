@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { MapPin, Mail, Clock } from "lucide-react";
 import { useForm, ValidationError } from "@formspree/react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,28 @@ const contactInfo = [
 
 const ContactSection = () => {
   const [state, handleSubmit] = useForm("mgolkryb");
+  const recaptchaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const renderWidget = () => {
+      if (recaptchaRef.current && (window as any).grecaptcha?.render) {
+        recaptchaRef.current.innerHTML = '';
+        try {
+          (window as any).grecaptcha.render(recaptchaRef.current, {
+            sitekey: '6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O',
+          });
+        } catch (e) { /* already rendered */ }
+      }
+    };
+
+    // If grecaptcha already loaded, render immediately
+    if ((window as any).grecaptcha?.render) {
+      renderWidget();
+    } else {
+      // Wait for script to load
+      (window as any).onRecaptchaLoad = renderWidget;
+    }
+  }, [state.succeeded]);
 
   return (
     <section id="contact" className="py-24 md:py-32 bg-background">
@@ -131,7 +154,7 @@ const ContactSection = () => {
                   />
                   <ValidationError prefix="Message" field="message" errors={state.errors} />
                 </div>
-                <div className="g-recaptcha" data-sitekey="6Le8kG4sAAAAAHx5wR1daVJYycSwkbiopILeNk2O"></div>
+                <div ref={recaptchaRef}></div>
                 <Button type="submit" variant="forest" size="lg" className="w-full" disabled={state.submitting}>
                   {state.submitting ? "Envoi en cours..." : "Envoyer le message"}
                 </Button>
