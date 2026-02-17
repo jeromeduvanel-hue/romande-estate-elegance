@@ -133,6 +133,67 @@ const getEmailHtml = (data: ContactRequest): string => {
   return content;
 };
 
+const getConfirmationEmailHtml = (data: ContactRequest): string => {
+  const typeMessages: Record<string, string> = {
+    contact: "Votre message de contact",
+    valorisation: "Votre demande d'analyse foncière",
+    brochure: "Votre demande de brochure",
+  };
+
+  const requestType = typeMessages[data.type] || "Votre demande";
+
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #1a1a1a; padding: 20px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Trois Dimensions</h1>
+      </div>
+      <div style="background-color: #f9f9f9; padding: 30px; border: 1px solid #e0e0e0;">
+        <h2 style="color: #1a1a1a; margin-top: 0;">Confirmation de réception</h2>
+        
+        <p style="color: #333; line-height: 1.6;">
+          Bonjour ${data.name},
+        </p>
+        <p style="color: #333; line-height: 1.6;">
+          Nous avons bien reçu votre demande et nous vous en remercions. 
+          ${requestType} a été enregistré(e) avec succès.
+        </p>
+        <p style="color: #333; line-height: 1.6;">
+          Un membre de notre équipe vous contactera dans les plus brefs délais.
+        </p>
+
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 25px 0;" />
+
+        <h3 style="color: #1a1a1a; margin-bottom: 15px;">Nos coordonnées</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; width: 100px; color: #555;">Adresse</td>
+            <td style="padding: 8px 0; color: #333;">Trois Dimensions SA<br>Rue de l'Etang 25<br>1630 Bulle, Suisse</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #555;">Email</td>
+            <td style="padding: 8px 0;"><a href="mailto:contact@trois-dimensions.ch" style="color: #2d5a27;">contact@trois-dimensions.ch</a></td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #555;">Horaires</td>
+            <td style="padding: 8px 0; color: #333;">Lun – Ven : 9h00 – 17h00</td>
+          </tr>
+        </table>
+
+        <p style="color: #888; font-size: 13px; margin-top: 25px; line-height: 1.5;">
+          Ceci est un email automatique, merci de ne pas y répondre. 
+          Pour toute question, écrivez-nous à 
+          <a href="mailto:contact@trois-dimensions.ch" style="color: #2d5a27;">contact@trois-dimensions.ch</a>.
+        </p>
+      </div>
+      <div style="background-color: #1a1a1a; padding: 15px; text-align: center;">
+        <p style="color: #888888; margin: 0; font-size: 12px;">
+          © Trois Dimensions SA — Promoteur immobilier en Suisse Romande
+        </p>
+      </div>
+    </div>
+  `;
+};
+
 const sanitizeInput = (str: string): string => {
   return str
     .replace(/&/g, "&amp;")
@@ -263,9 +324,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Lead saved to database:", lead.id);
 
-    // Send email via Resend
-    // IMPORTANT: You must verify trois-dimensions.ch domain at resend.com/domains
-    // then update the 'from' address to use your verified domain
+    // Send notification email to Trois Dimensions
     const emailResponse = await resend.emails.send({
       from: "Trois Dimensions <noreply@trois-dimensions.ch>",
       to: ["contact@trois-dimensions.ch"],
@@ -274,7 +333,18 @@ const handler = async (req: Request): Promise<Response> => {
       reply_to: sanitizedData.email,
     });
 
-    console.log("Email sent:", emailResponse);
+    console.log("Notification email sent:", emailResponse);
+
+    // Send confirmation email to the client
+    const confirmationHtml = getConfirmationEmailHtml(sanitizedData);
+    const confirmationResponse = await resend.emails.send({
+      from: "Trois Dimensions <noreply@trois-dimensions.ch>",
+      to: [sanitizedData.email],
+      subject: "Confirmation de votre demande — Trois Dimensions SA",
+      html: confirmationHtml,
+    });
+
+    console.log("Confirmation email sent:", confirmationResponse);
 
     // Update lead to mark email as sent
     const emailData = emailResponse.data;
