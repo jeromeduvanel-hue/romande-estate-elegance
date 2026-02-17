@@ -32,12 +32,14 @@ const ValorisationSection = () => {
     setSubmitting(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
+    const jsonBody: Record<string, string> = {};
+    formData.forEach((value, key) => { jsonBody[key] = value as string; });
 
     try {
       if ((window as any).grecaptcha) {
         await new Promise<void>((resolve) => (window as any).grecaptcha.ready(resolve));
         const token = await (window as any).grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit' });
-        formData.set("g-recaptcha-response", token);
+        jsonBody["g-recaptcha-response"] = token;
       }
     } catch (err) {
       console.warn("reCAPTCHA token error, submitting without:", err);
@@ -46,8 +48,8 @@ const ValorisationSection = () => {
     try {
       const res = await fetch(FORMSPREE_URL, {
         method: "POST",
-        body: formData,
-        headers: { Accept: "application/json" },
+        body: JSON.stringify(jsonBody),
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
       });
 
       if (res.ok) {
