@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -12,50 +12,21 @@ const benefits = ["Estimation gratuite de votre bien", "Étude de faisabilité c
 const ValorisationSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    message: ""
-  });
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const form = e.currentTarget;
-    const formDataObj = new FormData(form);
-
-    try {
-      const res = await fetch("https://formspree.io/f/mgolkryb", {
-        method: "POST",
-        body: formDataObj,
-        headers: { Accept: "application/json" }
-      });
-
-      if (res.ok) {
-        toast({
-          title: "Demande envoyée",
-          description: "Un expert vous contactera dans les 48h pour planifier une analyse."
-        });
-        setShowForm(false);
-        setFormData({ name: "", email: "", phone: "", address: "", message: "" });
-      } else {
-        throw new Error("Erreur envoi");
-      }
-    } catch (error) {
-      console.error("Error sending request:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue. Veuillez réessayer.",
-        variant: "destructive"
-      });
-    } finally {
+  const handleIframeLoad = () => {
+    // Only trigger after actual form submission (not initial render)
+    if (isSubmitting) {
       setIsSubmitting(false);
+      toast({
+        title: "Demande envoyée",
+        description: "Un expert vous contactera dans les 48h pour planifier une analyse."
+      });
+      setShowForm(false);
     }
   };
+
   return <section id="valorisation" className="py-24 md:py-32 bg-foreground text-background">
       <div className="container-swiss">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -103,7 +74,7 @@ const ValorisationSection = () => {
               <div>
                 <p className="text-5xl md:text-6xl font-bold text-background mb-2">1 mois
               </p>
-                <p className="text-background/60 text-sm">Délai moyen pour un avant projet </p>
+                <p className="text-background/60 text-sm">Délai moyen pour un avant projet </p>
               </div>
               <div>
                 <p className="text-5xl md:text-6xl font-bold text-forest mb-2">FR-VD
@@ -116,6 +87,14 @@ const ValorisationSection = () => {
         </div>
       </div>
 
+      {/* Hidden iframe for form submission */}
+      <iframe
+        ref={iframeRef}
+        name="formspree-iframe-valorisation"
+        style={{ display: "none" }}
+        onLoad={handleIframeLoad}
+      />
+
       {/* Analysis Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-lg">
@@ -127,29 +106,35 @@ const ValorisationSection = () => {
           <p className="text-muted-foreground text-sm mb-6">
             Décrivez votre bien et un expert vous contactera pour une analyse personnalisée.
           </p>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            action="https://formspree.io/f/mgolkryb"
+            method="POST"
+            target="formspree-iframe-valorisation"
+            onSubmit={() => setIsSubmitting(true)}
+            className="space-y-4"
+          >
             <input type="hidden" name="type_demande" value="Analyse foncière" />
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="analysis-name">Nom complet</Label>
-                <Input id="analysis-name" name="nom" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required maxLength={200} className="mt-1.5" />
+                <Input id="analysis-name" name="nom" required maxLength={200} className="mt-1.5" />
               </div>
               <div>
                 <Label htmlFor="analysis-phone">Téléphone</Label>
-                <Input id="analysis-phone" type="tel" name="telephone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} required className="mt-1.5" />
+                <Input id="analysis-phone" type="tel" name="telephone" required className="mt-1.5" />
               </div>
             </div>
             <div>
               <Label htmlFor="analysis-email">Email</Label>
-              <Input id="analysis-email" type="email" name="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required maxLength={255} className="mt-1.5" />
+              <Input id="analysis-email" type="email" name="email" required maxLength={255} className="mt-1.5" />
             </div>
             <div>
               <Label htmlFor="analysis-address">Adresse du bien</Label>
-              <Input id="analysis-address" name="adresse_bien" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Rue, NPA, Ville" required className="mt-1.5" />
+              <Input id="analysis-address" name="adresse_bien" placeholder="Rue, NPA, Ville" required className="mt-1.5" />
             </div>
             <div>
               <Label htmlFor="analysis-message">Description (optionnel)</Label>
-              <Textarea id="analysis-message" name="message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" maxLength={5000} />
+              <Textarea id="analysis-message" name="message" placeholder="Type de bien, surface, zone, etc." className="mt-1.5 min-h-[100px]" maxLength={5000} />
             </div>
             <Button type="submit" variant="forest" size="lg" className="w-full mt-6" disabled={isSubmitting}>
               {isSubmitting ? "Envoi en cours..." : "Envoyer la demande"}
